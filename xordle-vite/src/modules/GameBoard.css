@@ -1,0 +1,33 @@
+.game-board {
+  overflow: hidden;
+}
+
+.game-board:focus {
+  outline: none;
+}
+
+.game-board-letter-wrapper {
+  flex-basis: 20%;
+}
+
+.game-board-letter {
+  font-size: 5vw;
+  font-weight: 800;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.5rem;
+  user-select: none;
+  margin: .15rem .15rem;
+}
+
+.game-board-list {
+  padding: 1rem 1.5rem;
+}
+
+.game-board ::-webkit-scrollbar {
+  width: 0;
+}
+
+.game-board .keyboard {
+  padding: .2rem;
+}

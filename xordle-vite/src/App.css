@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
+
+* {
+  font-family: 'Inter' !important;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root, .app {
+  display: flex;
+  flex: 1 1;
+  height: 100%;
+  width: 100%;
+  background: rgb(16, 16, 16);
+  overflow: hidden;
+}
+
+button, button:focus {
+  outline: none;
+  border: none;
+}
+
+
+.flex, .flex-col { 
+  display: flex;
+}
+.flex-col { 
+  flex-direction: column;
+}
+.flex-fill {
+  flex: 1 1;
+}
+
+.overflow {
+  overflow: overlay;
+  scroll-behavior: smooth;
+}
+
+
+
+.bg-gray {
+  background: rgb(55, 55, 55);
+  color: white;
+}
+
+.bg-green {
+  background: rgb(30, 170, 45);
+  color: white;
+}
+
+.bg-yellow {
+  background: rgb(238, 204, 7);
+  color: white;
+}
+
+.bg-neutral {
+  background: rgb(100, 100, 100);
+  color: white;
+}
+
+.bg-placeholder {
+  outline: 1px solid rgb(100, 100, 100);
+  color: white;
+}
+
+.main-screen {
+  align-items: center;
+  justify-content: center;
+  color: rgb(111, 133, 255);
+}
+
+.main-screen > .title-label {
+  font-size: 20vw;
+  font-weight: 900;
+  animation: bounce .6s linear infinite alternate-reverse;
+  margin-bottom: 1rem;
+}
+
+.main-screen > .menu {
+  width: 20vw;
+  max-width: 25rem;
+}
+
+.main-screen > .menu button {
+  margin-bottom: .8rem;
+  background: rgb(111, 133, 255);
+  color: white;
+  font-weight: 600;
+  outline: none;
+  border: none;
+  padding: .5rem 0;
+  border-radius: .8rem;
+  cursor: pointer;
+}
+
+@keyframes bounce {
+  0% {
+    transform: rotateZ(2deg);
+  }
+  100% {
+    transform: rotateZ(-2deg);
+  }
+}

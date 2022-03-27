@@ -1,0 +1,26 @@
+.keyboard-row {
+  height: 100%;
+  max-width: 100vw;
+  justify-content: center;
+}
+
+.keyboard-key {
+  font-size: 1.1rem;
+  font-weight: 600;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 3rem;
+  user-select: none;
+  margin: .17rem;
+  border-radius: .2rem;
+  user-select: none;
+}
+
+.keyboard-key#enter, .keyboard-key#backspace {
+  width: 3rem;
+}
+
+.keyboard-key#enter {
+  font-size: .75rem;
+}
