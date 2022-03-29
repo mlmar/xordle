@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
 
+:root {
+  --purple: rgb(111, 133, 255);
+}
+
 * {
   font-family: 'Inter' !important;
   margin: 0;
@@ -19,6 +23,7 @@ html, body, #root, .app {
 button, button:focus {
   outline: none;
   border: none;
+  color: rgb(16, 16, 16);
 }
 
 
@@ -67,31 +72,41 @@ button, button:focus {
 .main-screen {
   align-items: center;
   justify-content: center;
-  color: rgb(111, 133, 255);
+  color: var(--purple);
 }
 
 .main-screen > .title-label {
-  font-size: 20vw;
+  font-size: 18vw;
   font-weight: 900;
   animation: bounce .6s linear infinite alternate-reverse;
-  margin-bottom: 1rem;
+  margin-bottom: 5vh;
 }
 
 .main-screen > .menu {
-  width: 20vw;
-  max-width: 25rem;
+  width: 100%;
+  align-items: center;
 }
 
 .main-screen > .menu button {
-  margin-bottom: .8rem;
-  background: rgb(111, 133, 255);
-  color: white;
-  font-weight: 600;
+  background: var(--purple);
+  font-weight: 800;
+  font-size: 4vmin;
   outline: none;
   border: none;
-  padding: .5rem 0;
-  border-radius: .8rem;
+  height: 30vmin;
+  width: 30vmin;
+  border-radius: 100%;
   cursor: pointer;
+}
+
+.main-screen > .menu button:nth-child(odd) {
+  margin-left: -30%;
+  animation: pulse .6s linear infinite alternate-reverse;
+}
+
+.main-screen > .menu button:nth-child(even) {
+  margin-right: -30%;
+  animation: pulse .6s linear infinite alternate-reverse 1s;
 }
 
 @keyframes bounce {
@@ -100,5 +115,14 @@ button, button:focus {
   }
   100% {
     transform: rotateZ(-2deg);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(100%);
+  }
+  100% {
+    transform: scale(104%);
   }
 }

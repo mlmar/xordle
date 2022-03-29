@@ -7,8 +7,8 @@ const TEXT = {
 
 const _CONSTANTS = {
   MENU_OPTIONS: [
-    { id: TEXT.CREATE, text: 'Create' },
-    { id: TEXT.JOIN, text: 'Join' },
+    { id: TEXT.CREATE, text: 'CREATE' },
+    { id: TEXT.JOIN, text: 'JOIN' },
     // { id: TEXT.EXIT, text: 'Exit' }
   ],
 
