@@ -69,18 +69,44 @@ class Room {
       return true;
     }
 
-    const getStatus = (l, i) => {
-      if(this.word[i] === l) {
+    const getStatus = (index) => {
+      // https://codereview.stackexchange.com/questions/274301/wordle-color-algorithm-in-javascript
+      // correct (matched) index letter
+      if (this.current[index] === this.word[index]) {
         return 1;
-      } else if(this.word.includes(l)) {
-        return 2;
-      } else {
-        return 0;
       }
+
+      let wrongWord = 0
+      let wrongGuess = 0;
+      for (let i = 0; i < this.word.length; i++) {
+        // count the wrong (unmatched) letters
+        if (this.word[i] === this.current[index] && this.current[i] !== this.current[index] ) {
+          wrongWord++;
+        }
+        if (i <= index) {
+          if (this.current[i] === this.current[index] && this.word[i] !== this.current[index]) {
+            wrongGuess++;
+          }
+        }
+
+        // an unmatched guess letter is wrong if it pairs with 
+        // an unmatched word letter
+        if (i >= index) {
+          if (wrongGuess === 0) {
+            break;
+          } 
+          if (wrongGuess <= wrongWord) {
+            return 2;
+          }
+        }
+      }
+
+      // otherwise not any
+      return 5;
     }
 
     const newWord = this.current.map((letter, i) => {
-      const status = getStatus(letter, i);
+      const status = getStatus(i);
 
       this.keys[letter] = Math.max((this.keys[letter] || 0), status);
 
@@ -89,6 +115,7 @@ class Room {
         status: status,
       }
     });
+
 
     this.history.push(newWord);
 
@@ -136,7 +163,8 @@ class Room {
     this.turnIndex = Math.floor(Math.random() * this.users.size);
     this.turn = Array.from(this.users)[this.turnIndex];
     this.inProgress = true;
-    this.word = WordUtil.getRandomWord();
+    // this.word = WordUtil.getRandomWord();
+    this.word = 'SPEED';
     console.log('WORD:', this.word);
   }
   

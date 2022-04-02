@@ -19,7 +19,7 @@ const Keyboard = (props) => {
     return (
       <div className="flex keyboard-row">
         {prepend}
-        {row.map((letter) => <Key letter={letter} status={keys?.[letter] >= 0 ? keys[letter] : 4} key={letter} id={letter}/>)}
+        {row.map((letter) => <Key letter={letter} status={keys?.[letter] >= 0 ? keys[letter] : 3} key={letter} id={letter}/>)}
         {append}
       </div>
     )
@@ -29,7 +29,7 @@ const Keyboard = (props) => {
     <div className={"keyboard flex-col " + (disabled ? 'disabled' : '')} onTouchEnd={handleClick} onClick={handleClick}>
       {constructRow(0)}
       {constructRow(1)}
-      {constructRow(2, <Key letter={'ENTER'} status={4} id="enter"/>, <Key letter={<>&#171;</>} status={4} id="backspace"/>)}
+      {constructRow(2, <Key letter={'ENTER'} status={3} id="enter"/>, <Key letter={<>&#171;</>} status={3} id="backspace"/>)}
     </div>
   )
 }

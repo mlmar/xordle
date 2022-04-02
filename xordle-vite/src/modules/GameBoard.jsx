@@ -40,7 +40,7 @@ const GameBoard = (props) => {
   const getCurrent = () => {
     const result = [];
     for(let i = 0; i < 5; i++) {
-      result.push(<Letter letter={current[i] || CONSTANTS.BLANK} status={5} key={uuidv4()}/>);
+      result.push(<Letter letter={current[i] || CONSTANTS.BLANK} status={4} key={uuidv4()}/>);
     }
     return result;
   }
