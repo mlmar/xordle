@@ -3,6 +3,49 @@
   justify-content: space-between;
 }
 
+.game .game-end {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.795);
+  z-index: 100;
+}
+
+.game-end ~ * {
+  filter: blur(1px) !important;
+}
+
+.game-end-label {
+  color: var(--purple);
+  font-weight: 800;
+  font-size: 3rem;
+}
+
+.game-end-word {
+  color: var(--green);
+  font-weight: 800;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.game-end button {
+  background: var(--purple);
+  font-weight: 800;
+  font-size: 4vmin;
+  outline: none;
+  border: none;
+  height: 25vmin;
+  width: 25vmin;
+  border-radius: 100%;
+  cursor: pointer;
+  animation: pulse .6s linear infinite alternate-reverse;
+  margin: 2rem;
+}
+
 .game-lobby .room-code {
   font-weight: 800;
   font-size: 20vmin;

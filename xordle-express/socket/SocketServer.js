@@ -29,6 +29,7 @@ const handleConnection = (socket) => {
   const id = v4();
   socket.id = id;
   CLIENTS.set(id, socket);
+  to(socket, 'SET_ID', id);
   console.log('Client',`[${socket.id}]`, 'connected to server');
 }
 
@@ -60,15 +61,69 @@ listen('CREATE', (socket) => {
   console.log(`Creating room [${room}]`);
 });
 
+
 listen('JOIN', (socket, payload) => {
   const { room } = payload;
   const roomObj = roomUtil.get(room);
-  if(!roomObj) return;
+  if(!roomObj) {
+    console.log(`[${room}]`,'does not exist');
+    return;
+  }
   socket.room = room;
   roomObj.addUser(socket.id);
   roomUtil.print();
   console.log("Client", `[${socket.id}]`, "joined room", `[${payload.room}]`)
   broadcast([...roomObj.getUsers()], 'JOIN', roomObj.getData());
+});
+
+listen('VERIFY', (socket, payload) => {
+  const { room } = payload;
+  if(!roomUtil.get(room)) {
+    console.log("false");
+    to(socket, 'VERIFY', false);
+  } else {
+    to(socket, 'VERIFY', room);
+  }
+});
+
+listen('START', (socket) => {
+  const { room } = socket;
+  const roomObj = roomUtil.get(room);
+  if(!roomObj || socket.id !== roomObj?.host) return;
+  roomObj.start()
+  broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+});
+
+listen('END', (socket) => {
+  const { room } = socket;
+  const roomObj = roomUtil.get(room);
+  if(!roomObj || socket.id !== roomObj?.host) return;
+  roomObj.end()
+  broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+})
+
+listen('PRESS_LETTER', (socket, payload) => {
+  const { room } = socket;
+  const roomObj = roomUtil.get(room);
+  if(!roomObj || socket.id !== roomObj?.turn) return;
+  roomObj.pressLetter(payload.letter);
+  broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+});
+
+listen('REMOVE_LETTER', (socket) => {
+  const { room } = socket;
+  const roomObj = roomUtil.get(room);
+  if(!roomObj || socket.id !== roomObj?.turn) return;
+  roomObj.removeLetter();
+  broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+});
+
+listen('ENTER_WORD', (socket) => {
+  const { room } = socket;
+  const roomObj = roomUtil.get(room);
+  if(!roomObj || socket.id !== roomObj?.turn) return;
+  if(!roomObj.enterWord()) roomObj.nextTurn();
+  broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
 });
 
 /*

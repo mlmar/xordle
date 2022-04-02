@@ -4,10 +4,11 @@ import './Keyboard.css';
 import { getClassNameByStatus } from '../util/Util';
 
 const Keyboard = (props) => {
-  const { available, onClick } = props;
+  const { keys, onClick, disabled } = props;
 
   
   const handleClick = (event) => {
+    if(disabled) return;
     event.preventDefault();
     const key = event.touches?.[0]?.target.id || event.target.id;
     if(onClick) onClick({ key });
@@ -18,14 +19,14 @@ const Keyboard = (props) => {
     return (
       <div className="flex keyboard-row">
         {prepend}
-        {row.map((letter) => <Key letter={letter} status={4} key={letter} id={letter}/>)}
+        {row.map((letter) => <Key letter={letter} status={keys?.[letter] >= 0 ? keys[letter] : 4} key={letter} id={letter}/>)}
         {append}
       </div>
     )
   }
 
   return (
-    <div className="keyboard flex-col" onTouchEnd={handleClick} onClick={handleClick}>
+    <div className={"keyboard flex-col " + (disabled ? 'disabled' : '')} onTouchEnd={handleClick} onClick={handleClick}>
       {constructRow(0)}
       {constructRow(1)}
       {constructRow(2, <Key letter={'ENTER'} status={4} id="enter"/>, <Key letter={<>&#171;</>} status={4} id="backspace"/>)}

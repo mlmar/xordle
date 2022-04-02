@@ -17,10 +17,17 @@
   user-select: none;
 }
 
+
 .keyboard-key#enter, .keyboard-key#backspace {
   width: 3rem;
 }
 
 .keyboard-key#enter {
   font-size: .75rem;
+}
+
+.keyboard.disabled, .keyboard.disabled * {
+  touch-action: none;
+  pointer-events: none;
+  opacity: .7;
 }

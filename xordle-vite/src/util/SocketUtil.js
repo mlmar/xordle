@@ -12,6 +12,11 @@ const init = () => {
     return;
   }
 
+  listen('SET_ID', (id) => {
+    if(client) client.id = id;
+  })
+  
+
   client = new WebSocket(SOCKET_URL);
   
   client.emit = (action, payload) => {
@@ -28,6 +33,7 @@ const init = () => {
   console.log("Socket Initialized")
   return client;
 }
+
 
 const socketUtil = { init, listen }
 

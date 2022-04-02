@@ -3,6 +3,7 @@ const TEXT = {
   CREATE: 'create',
   JOIN: 'join',
   EXIT: 'exit',
+  PLAY: 'play',
 }
 
 const _CONSTANTS = {
@@ -17,6 +18,8 @@ const _CONSTANTS = {
     ROW_1: 'asdfghjkl'.toUpperCase().split(''),
     ROW_2: 'zxcvbnm'.toUpperCase().split(''),
   },
+
+  TRIANGLE_RIGHT: '/TriangleRight.png',
 
   BLANK: <>&nbsp;</>
 }

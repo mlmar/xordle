@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import './GameBoard.css';
 import CONSTANTS from '../util/Constants';
 import { getClassNameByStatus, uuidv4 } from '../util/Util';
@@ -7,8 +7,7 @@ import Keyboard from './Keyboard';
 
 
 const GameBoard = (props) => {
-  const { history, inProgress } = props;
-  const [current, setCurrent] = useState([]);
+  const { keys, history, inProgress, keyboardDisabled, onKeyPress, current } = props;
   const gameBoardRef = useRef(null);
   const lastWordRef = useRef(null);
 
@@ -21,20 +20,18 @@ const GameBoard = (props) => {
   }, [current]);
 
   const handleKeyDown = (event) => {
+    if(keyboardDisabled) return;
+
     switch(event.key.toUpperCase()) {
       case 'ENTER':
-        setCurrent([]);
+        if(onKeyPress) onKeyPress('ENTER');
         break;
       case 'BACKSPACE':
-        setCurrent(prev => {
-          let temp = [...prev];
-          temp.pop();
-          return temp;
-        })
+        if(onKeyPress) onKeyPress(null);
         break;
       default:
         if((/^[a-zA-Z]$/.test(event.key))) {
-          setCurrent(prev => prev.length < 5 ? [...prev, event.key.toUpperCase()] : prev)
+          if(onKeyPress) onKeyPress(event.key);
         }
         break;
     }
@@ -66,7 +63,7 @@ const GameBoard = (props) => {
           {inProgress && getCurrent()}
         </div>
       </div>
-      <Keyboard onClick={handleKeyDown}/>
+      <Keyboard keys={keys} disabled={keyboardDisabled} onClick={handleKeyDown}/>
     </div>
   )
 }
