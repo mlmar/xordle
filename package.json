@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "heroku-postbuild": "npm install --prefix xordle-vite",
-    "start": "npm run server --prefix mouse-vite"
+    "start": "npm run server --prefix xordle-vite"
   },
   "repository": {
     "type": "git",
