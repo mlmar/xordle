@@ -163,8 +163,7 @@ class Room {
     this.turnIndex = Math.floor(Math.random() * this.users.size);
     this.turn = Array.from(this.users)[this.turnIndex];
     this.inProgress = true;
-    // this.word = WordUtil.getRandomWord();
-    this.word = 'SPEED';
+    this.word = WordUtil.getRandomWord();
     console.log('WORD:', this.word);
   }
   
