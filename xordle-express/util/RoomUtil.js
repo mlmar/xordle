@@ -108,7 +108,7 @@ class Room {
     const newWord = this.current.map((letter, i) => {
       const status = getStatus(i);
 
-      this.keys[letter] = Math.max((this.keys[letter] || 0), status);
+      this.keys[letter] = status;
 
       return {
         letter: letter.toUpperCase(),
