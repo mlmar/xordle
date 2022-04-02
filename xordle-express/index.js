@@ -29,7 +29,7 @@ app.get('/ping', (req, res) => {
 });
 
 // SERVER STATIC DIRECTORYT IF NOT IN DEVELOPMENT
-if(!DEV) {
+if(!process.env.DEV) {
   const REACT_DIRECTORY = "../xordle-vite/dist";
   const path = require('path');
 
