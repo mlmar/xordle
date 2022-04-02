@@ -32,7 +32,7 @@ const App = () => {
   useEffect(() => {
     setInterval(() => {
       client.emit('PING_TEST');
-    }, 60000)
+    }, 12000)
   }, [])
 
   const handleMenuClick = (id) => {

@@ -17,6 +17,9 @@
   user-select: none;
 }
 
+.keyboard-key:active {
+  background: var(--gray);
+}
 
 .keyboard-key#enter, .keyboard-key#backspace {
   width: 3rem;

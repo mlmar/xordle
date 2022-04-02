@@ -1,10 +1,8 @@
 import { useEffect, useRef } from 'react';
 import './GameBoard.css';
 import CONSTANTS from '../util/Constants';
-import { getClassNameByStatus, uuidv4 } from '../util/Util';
+import { getClassNameByStatus } from '../util/Util';
 import Keyboard from './Keyboard';
-
-
 
 const GameBoard = (props) => {
   const { keys, history, inProgress, keyboardDisabled, onKeyPress, current } = props;
@@ -40,7 +38,7 @@ const GameBoard = (props) => {
   const getCurrent = () => {
     const result = [];
     for(let i = 0; i < 5; i++) {
-      result.push(<Letter letter={current[i] || CONSTANTS.BLANK} status={4} key={uuidv4()}/>);
+      result.push(<Letter letter={current[i]} status={current[i] ? 4 : 5} key={(current[i] || '') + i}/>);
     }
     return result;
   }
@@ -51,7 +49,7 @@ const GameBoard = (props) => {
         {
           history?.map((word, i) => {
             return (
-              <div className="flex" key={word + i}>
+              <div className={'flex ' + (i === history.length - 1 ? 'game-board-last' : '') } key={word + i}>
                 {
                   word?.map((letter, i) => <Letter {...letter} key={letter + i}/>)
                 }
@@ -59,7 +57,7 @@ const GameBoard = (props) => {
             )
           })
         }
-        <div className="flex" ref={lastWordRef}>
+        <div className="flex game-board-current" ref={lastWordRef} key={history?.length}>
           {inProgress && getCurrent()}
         </div>
       </div>
@@ -72,7 +70,7 @@ const Letter = ({ letter, status }) => {
   const letterStlye = ['flex game-board-letter', getClassNameByStatus(status)].join(' ');
   return (
     <div className="game-board-letter-wrapper">
-      <span className={letterStlye}> {letter} </span>
+      <span className={letterStlye}> {letter || CONSTANTS.BLANK} </span>
     </div>
   )
 }

@@ -20,6 +20,7 @@ const _CONSTANTS = {
   },
 
   TRIANGLE_RIGHT: '/TriangleRight.png',
+  DICTIONARY_URL: 'https://www.dictionary.com/browse/',
 
   BLANK: <>&nbsp;</>
 }

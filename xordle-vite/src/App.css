@@ -25,10 +25,18 @@ html, body, #root, .app {
   overflow: hidden;
 }
 
+a, a:visited {
+  background: initial;
+  text-decoration: none;
+}
+
+button {
+  color: rgb(16, 16, 16);
+}
+
 button, button:focus {
   outline: none;
   border: none;
-  color: rgb(16, 16, 16);
   user-select: none;
 }
 
@@ -75,8 +83,22 @@ button, button:focus {
 }
 
 .bg-placeholder {
-  outline: 1px solid rgb(100, 100, 100);
+  outline: 1px solid var(--gray);
   color: white;
+}
+
+.bg-placeholder.active {
+  outline: 1px solid var(--placeholder);
+  animation: letter-pulse .1s linear 0s 1 both alternate-reverse;
+}
+
+@keyframes letter-pulse {
+  0% {
+    transform: scale(100%);
+  }
+  100% {
+    transform: scale(110%);
+  }
 }
 
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import './Game.css';
 import socketUtil, { client } from '../util/SocketUtil';
 import GameBoard from './GameBoard';
+import CONSTANTS from '../util/Constants';
 
 const Game = (props) => {
   const { host, room } = props;
@@ -14,14 +15,9 @@ const Game = (props) => {
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', (data) => {
       setGameData(data);
+      setCurrent(prev => prev.join('') !== data?.current.join('') ? data?.current : prev);
     });
   }, []);
-
-  useEffect(() => {
-    if(current !== gameData?.current) {
-      setCurrent(gameData?.current);
-    }
-  }, [current, gameData]);
 
   const handleStartClick = () => {
     if(host) client.emit('START');
@@ -54,7 +50,7 @@ const Game = (props) => {
       { (gameData?.inProgress && !gameData?.turn) &&
         <div className="flex-col flex-fill game-end">
           <label className="game-end-label"> Word: </label>
-          <label className="game-end-word"> {gameData?.word}  </label>
+          <a className="game-end-word" href={CONSTANTS.DICTIONARY_URL + gameData?.word.toLowerCase()}> {gameData?.word} </a>
           <button className={!host ? 'hidden' : ''} onClick={handleRestartClick}> RESTART </button>
         </div>
       }
@@ -69,6 +65,7 @@ const Game = (props) => {
           keyboardDisabled={gameData?.turn !== client?.id}
         /> 
       }
+      
       { !gameData?.inProgress && (
           <div className="flex-col flex-fill game-lobby">
             <label className="flex room-code"> {gameData?.id} </label>

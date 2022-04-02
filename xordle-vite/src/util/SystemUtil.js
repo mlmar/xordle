@@ -1,4 +1,7 @@
 const DEV = false;
 
-export const SERVER_URL = DEV ? "http://localhost:3300" : "https://xordle.onrender.com";
-export const SOCKET_URL = DEV ? "ws://localhost:3300" : "wss://xordle.onrender.com";
+const LOCAL = 'localhost:3300';
+const DEPLOYED = 'xordle.onrender.com';
+
+export const SERVER_URL = DEV ? 'http://' + LOCAL : 'https://' + DEPLOYED;
+export const SOCKET_URL = DEV ? 'ws://' + LOCAL : 'wss://' + DEPLOYED;

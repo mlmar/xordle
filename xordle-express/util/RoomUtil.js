@@ -102,14 +102,12 @@ class Room {
       }
 
       // otherwise not any
-      return 5;
+      return 6;
     }
 
     const newWord = this.current.map((letter, i) => {
       const status = getStatus(i);
-
-      this.keys[letter] = status;
-
+      this.keys[letter] = this.keys[letter] ? Math.min(this.keys[letter], status) : status;
       return {
         letter: letter.toUpperCase(),
         status: status,
@@ -164,6 +162,7 @@ class Room {
     this.turn = Array.from(this.users)[this.turnIndex];
     this.inProgress = true;
     this.word = WordUtil.getRandomWord();
+    // this.word = 'SPACE';
     console.log('WORD:', this.word);
   }
   
