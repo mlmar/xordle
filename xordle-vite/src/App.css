@@ -13,6 +13,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  user-select: none;
 }
 
 html, body, #root, .app {
@@ -28,6 +29,7 @@ button, button:focus {
   outline: none;
   border: none;
   color: rgb(16, 16, 16);
+  user-select: none;
 }
 
 
