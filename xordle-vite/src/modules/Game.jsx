@@ -7,12 +7,21 @@ const Game = (props) => {
   const { host, room } = props;
   
   const [gameData, setGameData] = useState(null);
+  const [current, setCurrent] = useState([]);
 
   useEffect(() => {
     client.emit('JOIN', { room });
     socketUtil.listen('JOIN', setGameData);
-    socketUtil.listen('UPDATE', setGameData);
-  }, [])
+    socketUtil.listen('UPDATE', (data) => {
+      setGameData(data);
+    });
+  }, []);
+
+  useEffect(() => {
+    if(current !== gameData?.current) {
+      setCurrent(gameData?.current);
+    }
+  }, [current, gameData]);
 
   const handleStartClick = () => {
     if(host) client.emit('START');
@@ -24,10 +33,17 @@ const Game = (props) => {
 
   const handleKeyPress = (letter) => {
     if(letter === 'ENTER') {
+      setCurrent([]);
       client.emit('ENTER_WORD');
     } else if(letter) {
+      setCurrent(prev => prev.length < 5 ? [...prev, letter] : prev);
       client.emit('PRESS_LETTER', { letter });
     } else {
+      setCurrent(prev => {
+        let temp = [...prev];
+        temp.pop();
+        return temp;
+      })
       client.emit('REMOVE_LETTER');
     }
   }
@@ -47,7 +63,7 @@ const Game = (props) => {
         <GameBoard 
           keys={gameData?.keys}
           history={gameData?.history} 
-          current={gameData?.current} 
+          current={current} 
           onKeyPress={handleKeyPress} 
           inProgress={gameData?.turn} 
           keyboardDisabled={gameData?.turn !== client?.id}
