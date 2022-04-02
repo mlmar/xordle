@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "heroku-postbuild": "npm install --prefix xordle-vite",
-    "start": "npm run server --prefix xordle-vite"
+    "heroku-postbuild": "npm install --prefix xordle-express",
+    "start": "npm run server --prefix xordle-express"
   },
   "repository": {
     "type": "git",
