@@ -28,6 +28,13 @@ app.get('/ping', (req, res) => {
   res.send(respond(0, "pong", null));
 });
 
-app.get('/', (req, res) => {
-  res.send(respond(0, "HOME ROOT", null))
-});
+// SERVER STATIC DIRECTORYT IF NOT IN DEVELOPMENT
+if(!DEV) {
+  const REACT_DIRECTORY = "../xordle-vite/dist";
+  const path = require('path');
+
+  app.use(express.static(path.join(__dirname, REACT_DIRECTORY)))
+  app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, REACT_DIRECTORY,'index.html'))
+  });
+}

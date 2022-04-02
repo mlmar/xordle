@@ -1,4 +1,4 @@
-const DEV = true;
+const DEV = false;
 
-export const SERVER_URL = DEV ? "http://localhost:3300" : "https://TODO";
-export const SOCKET_URL = DEV ? "ws://localhost:3300" : "wss://TODO";
+export const SERVER_URL = DEV ? "http://localhost:3300" : "https://xordle.herokuapp.com";
+export const SOCKET_URL = DEV ? "ws://localhost:3300" : "wss://xordle.herokuapp.com";
