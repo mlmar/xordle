@@ -132,19 +132,11 @@ listen('END', (socket) => {
   broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
 })
 
-listen('PRESS_LETTER', (socket, payload) => {
+listen('SET_CURRENT', (socket, payload) => {
   const { room } = socket;
   const roomObj = roomUtil.get(room);
   if(!roomObj || socket.id !== roomObj?.turn) return;
-  roomObj.pressLetter(payload.letter);
-  broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
-});
-
-listen('REMOVE_LETTER', (socket) => {
-  const { room } = socket;
-  const roomObj = roomUtil.get(room);
-  if(!roomObj || socket.id !== roomObj?.turn) return;
-  roomObj.removeLetter();
+  roomObj.setCurrent(payload.current);
   broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
 });
 

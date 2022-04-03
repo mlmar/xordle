@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './Game.css';
 import socketUtil, { client } from '../util/SocketUtil';
+import { isValidLetter } from '../util/Util';
 import GameBoard from './GameBoard';
 
 const Game = (props) => {
@@ -16,7 +17,7 @@ const Game = (props) => {
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', (data) => {
       setGameData(data);
-      setCurrent(prev => prev.join('') !== data?.current.join('') ? data?.current : prev);
+      setCurrent(data?.current);
     });
   }, []);
 
@@ -30,21 +31,27 @@ const Game = (props) => {
 
   const handleKeyPress = (letter) => {
     if(letter === 'ENTER') {
-      setCurrent([]);
-      if(current.length === 5) client.emit('ENTER_WORD');
+      if(current.length === 5) {
+        client.emit('ENTER_WORD');        
+      } else {
+        setCurrent([]);
+      }
     } else if(letter) {
-      setCurrent(prev => prev.length < 5 ? [...prev, letter.toUpperCase()] : prev);
-      if(current.length < 5) client.emit('PRESS_LETTER', { letter });
+      setCurrent(prev => {
+        const res = prev.length < 5 ? [...prev, letter] : prev;
+        client.emit('SET_CURRENT', { current: res });
+        return res;
+      });
     } else {
       setCurrent(prev => {
-        let temp = [...prev];
-        temp.pop();
-        return temp;
-      })
-      if(current.length > 0) client.emit('REMOVE_LETTER');
+        if(prev.length === 0) return [];
+        const res = [...prev];
+        res.pop();
+        client.emit('SET_CURRENT', { current: res });
+        return res;
+      });
     }
   }
-
 
   return (
     <div className="flex-col flex-fill game">

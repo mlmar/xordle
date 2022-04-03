@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './GameBoard.css';
 import CONSTANTS from '../util/Constants';
-import { getClassNameByStatus, getClassNameByProgress } from '../util/Util';
+import { getClassNameByStatus, getClassNameByProgress, isValidLetter } from '../util/Util';
 import Keyboard from './Keyboard';
 
 const GameBoard = (props) => {
@@ -19,7 +19,6 @@ const GameBoard = (props) => {
 
   const handleKeyDown = (event) => {
     if(keyboardDisabled) return;
-
     switch(event.key.toUpperCase()) {
       case 'ENTER':
         if(onKeyPress) onKeyPress('ENTER');
@@ -28,9 +27,7 @@ const GameBoard = (props) => {
         if(onKeyPress) onKeyPress(null);
         break;
       default:
-        if((/^[a-zA-Z]$/.test(event.key))) {
-          if(onKeyPress) onKeyPress(event.key);
-        }
+        if(isValidLetter(event.key) && onKeyPress) onKeyPress(event.key.toUpperCase());
         break;
     }
   }

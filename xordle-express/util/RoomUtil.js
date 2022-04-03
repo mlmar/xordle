@@ -140,14 +140,12 @@ class Room {
     return this.turn === null;
   }
 
-  pressLetter(letter) {
-    if((/^[a-zA-Z]$/.test(letter))) {
-      this.current = this.current.length < 5 ? [...this.current, letter.toUpperCase()] : this.current;
+  setCurrent(val) {
+    if(val.length === 0) {
+      this.current = [];
+    } else if(val.length <= 5 && (/^[a-zA-Z]+$/.test(val.join('')))) {
+      this.current = val;
     }
-  }
-
-  removeLetter() {
-    this.current.pop();
   }
 
   nextTurn() {

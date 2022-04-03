@@ -29,3 +29,6 @@ export const getClassNameByProgress = (progress) => {
     return 'bg-green';
   }
 }
+
+export const isValidLetter = (letter) => (/^[a-zA-Z]$/.test(letter));
+export const isValidWord = (word) => (/^[a-zA-Z]+$/.test(word));
