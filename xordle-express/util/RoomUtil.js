@@ -16,6 +16,9 @@ class Room {
     this.inProgress = false;
     this.word = '';
     this.reveal = false;
+
+    this.countdown = 0;
+    this.timer = 0;
   }
 
   getData() {
@@ -153,6 +156,10 @@ class Room {
     this.current = [];
   }
 
+  setCountdown(num) {
+    this.setCountdown = num;
+  }
+
   startInterval(callback, time) {
     if(this.interval) return;
     this.interval = setInterval(() => {
@@ -171,6 +178,7 @@ class Room {
     this.turn = Array.from(this.users)[this.turnIndex];
     this.inProgress = true;
     this.word = WordUtil.getRandomWord();
+    this.timer = this.countdown;
     // this.word = 'SPACE';
     console.log('WORD:', this.word);
   }
@@ -183,6 +191,8 @@ class Room {
     this.history = [];
     this.word = '';
     this.reveal = false;
+    this.countdown = 0;
+    this.timer = 0;
   }
 
 }
