@@ -18,7 +18,8 @@ class Room {
     this.reveal = false;
 
     this.countdown = 0;
-    this.timer = 0;
+    this.timeLimit = 0;
+    this.timeRemaining = 0;
   }
 
   getData() {
@@ -31,7 +32,8 @@ class Room {
       keys: this.keys,
       history: this.history,
       inProgress: this.inProgress,
-      word: this.reveal ? this.word : '',
+      word: this.word,
+      timeRemaining: this.interval ? this.timeRemaining : -1,
     }
   }
 
@@ -81,8 +83,8 @@ class Room {
       return true;
     }
 
+    // https://codereview.stackexchange.com/questions/274301/wordle-color-algorithm-in-javascript
     const getStatus = (index) => {
-      // https://codereview.stackexchange.com/questions/274301/wordle-color-algorithm-in-javascript
       // correct (matched) index letter
       if (this.current[index] === this.word[index]) {
         return 1;
@@ -156,8 +158,25 @@ class Room {
     this.current = [];
   }
 
-  setCountdown(num) {
-    this.setCountdown = num;
+  setCountdown(numArg) {
+    if(typeof numArg === 'function') {
+      const res = numArg(this.countdown);
+      this.countdown = res > 0 ? res : 0;
+    } else {
+      this.countdown = numArg;
+    }
+    this.calculateProgress();
+    return this.countdown;
+  }
+
+  resetCountdown() {
+    this.countdown = this.timeLimit;
+    this.calculateProgress();
+  }
+
+  calculateProgress() {
+    this.timeRemaining = this.countdown / this.timeLimit;
+    return this.timeRemaining;
   }
 
   startInterval(callback, time) {
@@ -178,7 +197,9 @@ class Room {
     this.turn = Array.from(this.users)[this.turnIndex];
     this.inProgress = true;
     this.word = WordUtil.getRandomWord();
-    this.timer = this.countdown;
+    this.timeLimit = 30;
+    this.countdown = this.timeLimit;
+    this.timeRemaining = this.countdown / this.timeLimit;
     // this.word = 'SPACE';
     console.log('WORD:', this.word);
   }
@@ -192,7 +213,8 @@ class Room {
     this.word = '';
     this.reveal = false;
     this.countdown = 0;
-    this.timer = 0;
+    this.timeLimit = 0;
+    this.timeRemaining = 0;
   }
 
 }

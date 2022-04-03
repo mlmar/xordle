@@ -14,7 +14,12 @@ const listen = (action, func) => LISTENERS[action] = func;
 const broadcast = (sockets, action, payload) => {
   const message = JSON.stringify({ action, payload });
   sockets?.forEach((id) => {
-    CLIENTS.get(id).send(message);
+    const client = CLIENTS.get(id);
+    if(client) {
+      client.send(message);
+    } else {
+      console.log('ERROR:',`[${id}]`, 'does not exist');
+    }
   });
 }
 
@@ -47,6 +52,7 @@ const handleClose = (socket) => {
   if(roomObj) {
     const users = roomObj.removeUser(id);
     if(users.size === 0) {
+      roomObj.stopInterval();
       roomUtil.remove(room);
       console.log('Deleting empty room', `[${room}]`);
     }
@@ -57,6 +63,10 @@ const handleClose = (socket) => {
 
 
 /*** message listeners ***/
+
+listen('PING', (socket) => {
+  to(socket, 'PONG');
+});
 
 listen('CREATE', (socket) => {
   const room = roomUtil.create(socket.id);
@@ -83,7 +93,7 @@ listen('JOIN', (socket, payload) => {
 listen('VERIFY', (socket, payload) => {
   const { room } = payload;
   if(!roomUtil.get(room)) {
-    console.log("false");
+    console.log('Room', `[${room}]`, 'does not exist');
     to(socket, 'VERIFY', false);
   } else {
     to(socket, 'VERIFY', room);
@@ -95,6 +105,18 @@ listen('START', (socket) => {
   const roomObj = roomUtil.get(room);
   if(!roomObj || socket.id !== roomObj?.host) return;
   roomObj.start()
+
+  if(roomObj.getUsers().size > 1) {
+    roomObj.startInterval(() => {
+    const countdownRes = roomObj.setCountdown(countdown => countdown - 1);
+    if(countdownRes === 0) {
+      roomObj.resetCountdown();
+      roomObj.nextTurn();
+    }
+    broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+  }, 1000);
+  }
+
   broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
 });
 
@@ -102,7 +124,8 @@ listen('END', (socket) => {
   const { room } = socket;
   const roomObj = roomUtil.get(room);
   if(!roomObj || socket.id !== roomObj?.host) return;
-  roomObj.end()
+  roomObj.end();
+  roomObj.stopInterval();
   broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
 })
 
@@ -126,7 +149,10 @@ listen('ENTER_WORD', (socket) => {
   const { room } = socket;
   const roomObj = roomUtil.get(room);
   if(!roomObj || socket.id !== roomObj?.turn) return;
-  if(!roomObj.enterWord()) roomObj.nextTurn();
+  if(!roomObj.enterWord()) {
+    roomObj.nextTurn();
+    roomObj.resetCountdown();
+  }
   broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
 });
 
