@@ -18,7 +18,7 @@ const broadcast = (sockets, action, payload) => {
     if(client) {
       client.send(message);
     } else {
-      console.log('ERROR:',`[${id}]`, 'does not exist');
+      console.log('ERROR: Client',`[${id}]`, 'does not exist');
     }
   });
 }
@@ -30,31 +30,34 @@ const to = (socket, action, payload) => {
 }
 
 
+// assign socket id and return it
 const handleConnection = (socket) => {
   const id = v4();
   socket.id = id;
   CLIENTS.set(id, socket);
   to(socket, 'SET_ID', id);
-  console.log('Client',`[${socket.id}]`, 'connected to server');
+  console.log('STATUS: Client',`[${socket.id}]`, 'connected to server');
 }
 
+// redirects all socket messages to listeners
 const handleMessage = (socket, data) => {
   const message = JSON.parse(data);
   const { action, payload } = message;
-  console.log('Message from client', `[${socket.id}]`, ':', message);
+  console.log('MESSAGE:', `[${socket.id}]`, ':', message);
   if(LISTENERS[action]) LISTENERS[action](socket, payload);
 }
 
+// clears any empty rooms on disconnect  on disconnect
 const handleClose = (socket) => {
   const { room, id } = socket;
   const roomObj = roomUtil.get(room);
-  console.log('Client', `[${id}]`, 'disconnected');
+  console.log('STATUS: Client', `[${id}]`, 'disconnected');
   if(roomObj) {
     const users = roomObj.removeUser(id);
     if(users.size === 0) {
       roomObj.stopInterval();
       roomUtil.remove(room);
-      console.log('Deleting empty room', `[${room}]`);
+      console.log('PROCESS: Deleting empty room', `[${room}]`);
     }
     broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
   }
@@ -65,14 +68,14 @@ const handleClose = (socket) => {
 /*** message listeners ***/
 
 listen('PING', (socket) => {
-  to(socket, 'PONG');
+  to(socket, 'PING');
 });
 
 listen('CREATE', (socket) => {
   const room = roomUtil.create(socket.id);
   socket.room = room;
   to(socket, 'CREATE', room);
-  console.log(`Creating room [${room}]`);
+  console.log('PROCESS: Creating room',`[${room}]`);
 });
 
 
@@ -80,20 +83,20 @@ listen('JOIN', (socket, payload) => {
   const { room } = payload;
   const roomObj = roomUtil.get(room);
   if(!roomObj) {
-    console.log(`[${room}]`,'does not exist');
+    console.log('ERROR',`[${room}]`,'does not exist');
     return;
   }
   socket.room = room;
   roomObj.addUser(socket.id);
   roomUtil.print();
-  console.log("Client", `[${socket.id}]`, "joined room", `[${payload.room}]`)
+  console.log('STATUS: Client', `[${socket.id}]`, 'joined room', `[${payload.room}]`)
   broadcast([...roomObj.getUsers()], 'JOIN', roomObj.getData());
 });
 
 listen('VERIFY', (socket, payload) => {
   const { room } = payload;
   if(!roomUtil.get(room)) {
-    console.log('Room', `[${room}]`, 'does not exist');
+    console.log('ERROR: Room', `[${room}]`, 'does not exist');
     to(socket, 'VERIFY', false);
   } else {
     to(socket, 'VERIFY', room);
@@ -162,7 +165,7 @@ listen('ENTER_WORD', (socket) => {
     - reads all incoming connections, messages and closes connections
 */
 const init = (server) => {
-  console.log("Initializing socket server");
+  console.log('SERVER: Initializing socket server');
   const wsServer = new ws.Server({ server });
   wsServer.on('connection', (socket) => {
     handleConnection(socket);

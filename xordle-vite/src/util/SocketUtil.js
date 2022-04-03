@@ -5,7 +5,7 @@ export let client = null;
 
 // function that listens for a specific action and performs a function on the payload
 const LISTENERS = {};
-const listen = (action, func) => LISTENERS[action] = func;
+const listen = (action, func) => action.split(' ').forEach(a => LISTENERS[a] = func);
 
 const pingServer = () => {
   fetch(SERVER_URL + '/ping');
@@ -14,21 +14,20 @@ const pingServer = () => {
 
 const init = () => {
   if(client) {
-    console.warn("Socket already iniitialized")
-    return;
+    console.warn('Socket already iniitialized');
   }
 
-  listen('PONG', () => {
-    console.log('Server ping returned successfully');
+  listen('PING PONG', () => {
+    console.log('Received server ping');
   });
 
   listen('SET_ID', (id) => {
     if(client) client.id = id;
-    console.log("Socket Initialized")
+    console.log('Socket initialized')
   })
 
   client = new WebSocket(SOCKET_URL);
-  
+
   client.emit = (action, payload) => {
     if(client) {
       client.send(JSON.stringify({ action, payload }));
@@ -42,6 +41,10 @@ const init = () => {
     const { action, payload } = JSON.parse(data);
     // console.log(action, payload);
     if(LISTENERS[action]) LISTENERS[action](payload);
+  });
+
+  client.addEventListener('error', (event) => {
+    console.warn(event);
   });
 
   setInterval(pingServer, CONSTANTS.PING_DELAY);

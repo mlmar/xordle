@@ -20,7 +20,7 @@ const _CONSTANTS = {
   },
 
   TRIANGLE_RIGHT: '/TriangleRight.png',
-  PING_DELAY: 30000,
+  PING_DELAY: 25000,
 
   BLANK: <>&nbsp;</>,
 }

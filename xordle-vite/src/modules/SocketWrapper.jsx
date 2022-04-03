@@ -8,7 +8,7 @@ const SocketWrapper = (props) => {
     try {
       socketUtil.init();
     } catch (error) {
-      handleDisconenct(error);
+      onDisconnect(error);
     }
   }, [])
 
