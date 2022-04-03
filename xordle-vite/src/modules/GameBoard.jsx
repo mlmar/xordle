@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import './GameBoard.css';
 import CONSTANTS from '../util/Constants';
-import { getClassNameByStatus } from '../util/Util';
+import { getClassNameByStatus, getClassNameByProgress } from '../util/Util';
 import Keyboard from './Keyboard';
 
 const GameBoard = (props) => {
-  const { keys, history, inProgress, keyboardDisabled, onKeyPress, current } = props;
+  const { keys, history, inProgress, timeRemaining, keyboardDisabled, onKeyPress, current } = props;
   const gameBoardRef = useRef(null);
   const lastWordRef = useRef(null);
 
@@ -69,13 +69,27 @@ const GameBoard = (props) => {
           {inProgress && getCurrent()}
         </div>
       </div>
+      <Progress className="game-board-progress" progress={timeRemaining}/>
       <Keyboard keys={keys} disabled={keyboardDisabled} onClick={handleKeyDown}/>
     </div>
   )
 }
 
+// decimal point progress
+const Progress = ({ className, progress }) => {
+  const calculatedProgress = progress * 100;
+  const progressClassName = [className || '', 'flex progress'].join(' ');
+  const barClassName = ['flex progress-bar', getClassNameByProgress(calculatedProgress)].join(' ');
+  const style = { width: calculatedProgress + '%' };
+  return (
+    <div className={progressClassName}>
+      <div className={barClassName} style={style}></div>
+    </div>
+  )
+}
+
 const Letter = ({ letter, status, delay }) => {
-  const [bgClass, setBgClass] = useState('');
+  const [bgClass, setBgClass] = useState('bg-placeholder');
   
   useEffect(() => {
     if(delay) {

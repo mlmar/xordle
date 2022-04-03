@@ -2,6 +2,7 @@
 
 :root {
   --purple: rgb(111, 133, 255);
+  --red: red;
   --gray: rgb(55, 55, 55);
   --green: rgb(30, 170, 45);
   --yellow: rgb(226, 193, 4);
@@ -74,6 +75,10 @@ button, button:focus {
   background: var(--yellow);
 }
 
+.bg-red {
+  background:  var(--red);
+}
+
 .bg-neutral {
   background: var(--placeholder);
 }
@@ -89,10 +94,10 @@ button, button:focus {
 
 @keyframes letter-pulse {
   0% {
-    transform: scale(100%);
+    transform: scale(1);
   }
   100% {
-    transform: scale(110%);
+    transform: scale(1.1);
   }
 }
 
@@ -196,9 +201,13 @@ button, button:focus {
 
 @keyframes pulse {
   0% {
-    transform: scale(100%);
+    transform: scale(1);
   }
   100% {
-    transform: scale(104%);
+    transform: scale(1.04);
   }
+}
+
+.progress .progress-bar {
+  transition: width .2s linear;
 }

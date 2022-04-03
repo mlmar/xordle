@@ -19,3 +19,13 @@ export const getColorByStatus = (status) => {
     default: return 'var(--gray)';
   }
 }
+
+export const getClassNameByProgress = (progress) => {
+  if(progress < 33) {
+    return 'bg-red';
+  } else if(progress < 66) {
+    return 'bg-yellow';
+  } else {
+    return 'bg-green';
+  }
+}

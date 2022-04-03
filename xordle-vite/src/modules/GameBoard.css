@@ -1,4 +1,5 @@
 .game-board {
+  --side-padding: 1.5rem;
   overflow: hidden;
 }
 
@@ -22,7 +23,7 @@
 }
 
 .game-board-list {
-  padding: 1rem 1.5rem;
+  padding: 1rem var(--side-padding);
 }
 
 .game-board ::-webkit-scrollbar {
@@ -40,6 +41,11 @@
 
 .game-board-current {
   animation: show-current 1s ease 0s 1 forwards;
+}
+
+.game-board-progress {
+  height: .5rem;
+  padding: 0 var(--side-padding);
 }
 
 @keyframes show-current {

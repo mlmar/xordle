@@ -31,17 +31,17 @@ const Game = (props) => {
   const handleKeyPress = (letter) => {
     if(letter === 'ENTER') {
       setCurrent([]);
-      client.emit('ENTER_WORD');
+      if(current.length === 5) client.emit('ENTER_WORD');
     } else if(letter) {
       setCurrent(prev => prev.length < 5 ? [...prev, letter.toUpperCase()] : prev);
-      client.emit('PRESS_LETTER', { letter });
+      if(current.length < 5) client.emit('PRESS_LETTER', { letter });
     } else {
       setCurrent(prev => {
         let temp = [...prev];
         temp.pop();
         return temp;
       })
-      client.emit('REMOVE_LETTER');
+      if(current.length > 0) client.emit('REMOVE_LETTER');
     }
   }
 
@@ -60,9 +60,10 @@ const Game = (props) => {
         <GameBoard 
           keys={gameData?.keys}
           history={gameData?.history} 
-          current={current} 
-          onKeyPress={handleKeyPress} 
-          inProgress={gameData?.turn} 
+          current={current}
+          onKeyPress={handleKeyPress}
+          inProgress={gameData?.turn}
+          timeRemaining={gameData?.timeRemaining}
           keyboardDisabled={gameData?.turn !== client?.id}
         /> 
       }
