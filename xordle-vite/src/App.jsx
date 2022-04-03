@@ -94,9 +94,13 @@ const App = () => {
     }
   }
 
+  const handleDisconnect = () => {
+    dispatch({ type: 'viewMain' })
+  }
+
   return (
     <div className="app">
-      <SocketWrapper>
+      <SocketWrapper onDisconnect={handleDisconnect}>
         {getView()}
       </SocketWrapper>
     </div>
@@ -107,6 +111,8 @@ const App = () => {
 const reducer = (state, action) => {
   const { type, payload } = action;
   switch(type) {
+    case 'viewMain':
+      return { ...state, view: null };
     case 'viewJoin':
       return { ...state, view: 'game', room: payload.room };
     case 'viewCodeInput':

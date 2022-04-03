@@ -14,6 +14,7 @@ const init = () => {
 
   listen('SET_ID', (id) => {
     if(client) client.id = id;
+    console.log("Socket Initialized")
   })
   
 
@@ -30,7 +31,6 @@ const init = () => {
     if(LISTENERS[action]) LISTENERS[action](payload);
   });
 
-  console.log("Socket Initialized")
   return client;
 }
 
