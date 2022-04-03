@@ -109,7 +109,7 @@ listen('START', (socket) => {
   if(!roomObj || socket.id !== roomObj?.host) return;
   roomObj.start()
 
-  if(roomObj.getUsers().size > 1) {
+  if(roomObj.getUsers().length > 1) {
     roomObj.startInterval(() => {
     const countdownRes = roomObj.setCountdown(countdown => countdown - 1);
     if(countdownRes === 0) {
