@@ -20,9 +20,9 @@ const _CONSTANTS = {
   },
 
   TRIANGLE_RIGHT: '/TriangleRight.png',
-  DICTIONARY_URL: 'https://www.dictionary.com/browse/',
+  PING_DELAY: 30000,
 
-  BLANK: <>&nbsp;</>
+  BLANK: <>&nbsp;</>,
 }
 
 const CONSTANTS = { ...TEXT, ..._CONSTANTS }

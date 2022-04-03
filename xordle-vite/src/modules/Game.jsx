@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import './Game.css';
 import socketUtil, { client } from '../util/SocketUtil';
 import GameBoard from './GameBoard';
-import CONSTANTS from '../util/Constants';
 
 const Game = (props) => {
-  const { host, room } = props;
+  const { room } = props;
   
   const [gameData, setGameData] = useState(null);
   const [current, setCurrent] = useState([]);
+
+  const isHost = () => gameData?.host === client.id;
 
   useEffect(() => {
     client.emit('JOIN', { room });
@@ -20,11 +21,11 @@ const Game = (props) => {
   }, []);
 
   const handleStartClick = () => {
-    if(host) client.emit('START');
+    if(isHost()) client.emit('START');
   }
 
   const handleRestartClick = () => {
-    if(host) client.emit('END');
+    if(isHost()) client.emit('END');
   }
 
   const handleKeyPress = (letter) => {
@@ -32,7 +33,7 @@ const Game = (props) => {
       setCurrent([]);
       client.emit('ENTER_WORD');
     } else if(letter) {
-      setCurrent(prev => prev.length < 5 ? [...prev, letter] : prev);
+      setCurrent(prev => prev.length < 5 ? [...prev, letter.toUpperCase()] : prev);
       client.emit('PRESS_LETTER', { letter });
     } else {
       setCurrent(prev => {
@@ -50,8 +51,8 @@ const Game = (props) => {
       { (gameData?.inProgress && !gameData?.turn) &&
         <div className="flex-col flex-fill game-end">
           <label className="game-end-label"> Word: </label>
-          <a className="game-end-word" href={CONSTANTS.DICTIONARY_URL + gameData?.word.toLowerCase()}> {gameData?.word} </a>
-          <button className={!host ? 'hidden' : ''} onClick={handleRestartClick}> RESTART </button>
+          <label className="game-end-word"> {gameData?.word} </label>
+          <button className={!isHost() ? 'hidden' : ''} onClick={handleRestartClick}> RESTART </button>
         </div>
       }
 
@@ -71,7 +72,7 @@ const Game = (props) => {
             <label className="flex room-code"> {gameData?.id} </label>
             <p className="flex-col flex-fill"> {gameData?.playerCount} PLAYER{gameData?.playerCount > 1 ? 'S' : ''} </p>
             <button className="start-btn" onClick={handleStartClick}> 
-              {host ? 'START' : 'WAITING FOR HOST'} 
+              {isHost() ? 'START' : 'WAITING FOR HOST'} 
             </button>
           </div>
         )

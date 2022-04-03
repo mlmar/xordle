@@ -15,7 +15,7 @@ const App = () => {
     socketUtil.listen('CREATE', (room) => {
       dispatch({ 
         type: 'viewJoin',
-        payload: { room: room, host: true }
+        payload: { room: room }
       });
       sending.current = false;
     });
@@ -24,16 +24,10 @@ const App = () => {
       if(!room) return;
       dispatch({ 
         type: 'viewJoin',
-        payload: { room: room, host: false }
+        payload: { room: room }
       });
     });
   }, []);
-
-  useEffect(() => {
-    setInterval(() => {
-      client.emit('PING_TEST');
-    }, 12000)
-  }, [])
 
   const handleMenuClick = (id) => {
     if(sending.current) return;
@@ -86,7 +80,7 @@ const App = () => {
   const getView = () => {
     switch(state.view) {
       case 'game':
-        return <Game host={state.host} room={state.room}/>
+        return <Game room={state.room}/>
       default:
         return (
           <div className="main-screen flex-col flex-fill">
@@ -114,7 +108,7 @@ const reducer = (state, action) => {
   const { type, payload } = action;
   switch(type) {
     case 'viewJoin':
-      return { ...state, view: 'game', room: payload.room, host: payload.host };
+      return { ...state, view: 'game', room: payload.room };
     case 'viewCodeInput':
       return { ...state, view: 'codeInput' }
     case 'setCodeInput':

@@ -8,3 +8,14 @@ export const getClassNameByStatus = (status) => {
     default: return 'bg-gray';
   }
 }
+
+export const getColorByStatus = (status) => {
+  switch(parseInt(status)) {
+    case 1: return 'var(--green)';
+    case 2: return 'var(--yellow)';
+    case 3: return 'var(--neutral)';
+    case 4: return 'transparent'
+    case 5: return 'transparent'
+    default: return 'var(--gray)';
+  }
+}

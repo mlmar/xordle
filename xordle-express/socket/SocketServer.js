@@ -42,11 +42,15 @@ const handleMessage = (socket, data) => {
 
 const handleClose = (socket) => {
   const { room, id } = socket;
+  const roomObj = roomUtil.get(room);
   console.log('Client', `[${id}]`, 'disconnected');
-  if(roomUtil.get(room)) {
-    const users = roomUtil.get(room).removeUser(id);
-    if(users.size === 0) roomUtil.remove(room);
-  console.log('Deleting empty room', `[${room}]`);
+  if(roomObj) {
+    const users = roomObj.removeUser(id);
+    if(users.size === 0) {
+      roomUtil.remove(room);
+      console.log('Deleting empty room', `[${room}]`);
+    }
+    broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
   }
 }
 

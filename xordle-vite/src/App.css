@@ -9,7 +9,7 @@
 }
 
 * {
-  font-family: 'Inter' !important;
+  font-family: 'Inter', Arial, Helvetica, sans-serif !important;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -64,27 +64,22 @@ button, button:focus {
 
 .bg-gray {
   background: var(--gray);
-  color: white;
 }
 
 .bg-green {
   background: var(--green);
-  color: white;
 }
 
 .bg-yellow {
   background: var(--yellow);
-  color: white;
 }
 
 .bg-neutral {
   background: var(--placeholder);
-  color: white;
 }
 
 .bg-placeholder {
   outline: 1px solid var(--gray);
-  color: white;
 }
 
 .bg-placeholder.active {

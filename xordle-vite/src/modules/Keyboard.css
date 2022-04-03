@@ -15,6 +15,7 @@
   margin: .17rem;
   border-radius: .2rem;
   user-select: none;
+  color: white;
 }
 
 .keyboard-key:active {

@@ -18,6 +18,7 @@
   min-height: 3.5rem;
   user-select: none;
   margin: .15rem .15rem;
+  color: white;
 }
 
 .game-board-list {
@@ -32,46 +33,20 @@
   padding: .2rem;
 }
 
-.game-board-last .game-board-letter-wrapper {
-  opacity: 0;
+.game-board-last .game-board-letter {
   z-index: 100;
+  transition: background .2s ease;
 }
 
-.game-board-last .game-board-letter-wrapper:nth-child(1) {
-  animation: visibility .2s linear 0s 1 forwards;
-}
-.game-board-last .game-board-letter-wrapper:nth-child(2) {
-  animation: visibility .2s linear .05s 1 forwards;
-}
-.game-board-last .game-board-letter-wrapper:nth-child(3) {
-  animation: visibility .2s linear .1s 1 forwards;
-}
-.game-board-last .game-board-letter-wrapper:nth-child(4) {
-  animation: visibility .2s linear .15s 1 forwards;
-}
-.game-board-last .game-board-letter-wrapper:nth-child(5) {
-  animation: visibility .2s linear .2s 1 forwards;
+.game-board-current {
+  animation: show-current 1s ease 0s 1 forwards;
 }
 
-@keyframes visibility {
+@keyframes show-current {
   0% {
     opacity: 0;
   }
   100% {
     opacity: 100;
-  }
-}
-
-.game-board-current {
-  margin-top: -3.5rem;
-  animation: slide-down .5s ease 0s 1 forwards;
-}
-
-@keyframes slide-down {
-  0% {
-    margin-top: -3.5rem;
-  }
-  100% {
-    margin-top: 0;
   }
 }

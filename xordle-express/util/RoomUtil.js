@@ -20,6 +20,7 @@ class Room {
 
   getData() {
     return {
+      host: this.host,
       id: this.id,
       playerCount: this.users.size,
       turn: this.turn,
@@ -45,6 +46,16 @@ class Room {
 
   removeUser(user) {
     this.users.delete(user);
+
+    if(this.host === user && this.users.size > 0) {
+      this.host = Array.from(this.users)[0];
+      console.log('Picking', `[${this.host}]`, 'as new host for', `[${this.id}]`);
+    }
+
+    if(this.turn === user) {
+      this.nextTurn();
+    }
+
     return this.users;
   }
 
@@ -61,11 +72,9 @@ class Room {
 
     if(this.current.length < 5) {
       this.current = [];
-      console.log("Too short");
       return true;
     } else if(!found) {
       this.current = [];
-      console.log("Not a word");
       return true;
     }
 
