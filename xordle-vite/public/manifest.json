@@ -1,0 +1,8 @@
+{
+  "short_name": "xordle",
+  "name": "multiplayer wordle game",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#212121",
+  "background_color": "#eaeaea",
+}
