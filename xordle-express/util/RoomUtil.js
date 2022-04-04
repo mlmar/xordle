@@ -139,6 +139,7 @@ class Room {
     if(this.current.join('') === this.word) {
       this.turn = null;
       this.reveal = true;
+      this.stopInterval();
     }
     this.current = [];
 
