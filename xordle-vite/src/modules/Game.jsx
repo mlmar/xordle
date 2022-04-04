@@ -17,7 +17,12 @@ const Game = (props) => {
     client.emit('JOIN', { room });
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', (data) => {
-      setGameData(data);
+      setGameData(prev => {
+        if(prev?.turn !== data?.turn) {
+          setCurrent([]);
+        }
+        return data
+      });
     });
   }, []);
 
