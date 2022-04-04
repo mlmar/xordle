@@ -159,6 +159,7 @@ class Room {
     }
     this.turn = Array.from(this.users)[this.turnIndex];
     this.current = [];
+    this.status = 0;
   }
 
   setCountdown(numArg) {
