@@ -179,7 +179,7 @@ class Room {
 
   removeOldest() {
     const word = this.history.shift();
-    this.historySet.delete(word);
+    this.historySet.delete(word.map(({ letter }) => letter).join(''));
     this.keys = {};
     this.history.forEach((word) => {
       word.forEach(({ letter, status })  => {
