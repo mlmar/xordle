@@ -21,7 +21,7 @@ const Game = (props) => {
         console.log(data?.status);
         if(data?.status === 1) { // reset current on successful word input
           setCurrent([]);
-        } else if(data?.status === 0 && data?.host !== client.id) {
+        } else if(data?.status === 0 && data?.turn !== client.id) {
           setCurrent(data?.current);
         }
         return data
