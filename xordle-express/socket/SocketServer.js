@@ -149,6 +149,7 @@ listen('ENTER_WORD', (socket) => {
     roomObj.resetCountdown();
   }
   broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+  roomObj.setStatus(0);
 });
 
 /*

@@ -13,7 +13,8 @@ const pingServer = () => {
 }
 
 const init = () => {
-  const { id, room } = client;
+  const id = client?.id;
+  const room = client?.room;
 
   if(client) {
     console.warn('Client already iniitialized. Removing existing client...');
