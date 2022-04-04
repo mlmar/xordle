@@ -13,11 +13,11 @@ const Game = (props) => {
   const isHost = () => gameData?.host === client.id;
 
   useEffect(() => {
+    client.room = room;
     client.emit('JOIN', { room });
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', (data) => {
       setGameData(data);
-      setCurrent(data?.current);
     });
   }, []);
 
