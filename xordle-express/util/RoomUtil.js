@@ -77,7 +77,7 @@ class Room {
 
   enterWord() {
     const found = WordUtil.findWord(this.current.join(''));
-    this.status = 0;
+    this.status = 1;
 
     if(this.current.length < 5) {
       this.current = [];
@@ -132,9 +132,7 @@ class Room {
       }
     });
 
-
     this.history.push(newWord);
-    this.status = 1;
 
     if(this.current.join('') === this.word) {
       this.turn = null;
@@ -161,6 +159,10 @@ class Room {
     this.turn = Array.from(this.users)[this.turnIndex];
     this.current = [];
     this.status = 1;
+  }
+
+  removeOldest() {
+    this.history.shift();
   }
 
   setStatus(status) {

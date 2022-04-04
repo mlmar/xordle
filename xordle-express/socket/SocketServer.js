@@ -116,6 +116,7 @@ listen('START', (socket) => {
     if(countdownRes === 0) {
       roomObj.resetCountdown();
       roomObj.nextTurn();
+      roomObj.removeOldest();
     }
     broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
     roomObj.setStatus(0);
