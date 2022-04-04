@@ -20,6 +20,7 @@ class Room {
     this.countdown = 0;
     this.timeLimit = 0;
     this.timeRemaining = 0;
+    this.status = 0;
   }
 
   getData() {
@@ -34,6 +35,7 @@ class Room {
       inProgress: this.inProgress,
       word: this.word,
       timeRemaining: this.interval ? this.timeRemaining : -1,
+      status: this.status,
     }
   }
 
@@ -75,6 +77,7 @@ class Room {
 
   enterWord() {
     const found = WordUtil.findWord(this.current.join(''));
+    this.status = 0;
 
     if(this.current.length < 5) {
       this.current = [];
@@ -131,6 +134,7 @@ class Room {
 
 
     this.history.push(newWord);
+    this.status = 1;
 
     if(this.current.join('') === this.word) {
       this.turn = null;
@@ -199,6 +203,7 @@ class Room {
     this.timeLimit = 30;
     this.countdown = this.timeLimit;
     this.timeRemaining = this.countdown / this.timeLimit;
+    this.status = 0;
     // this.word = 'SPACE';
     console.log('WORD:', this.word);
   }
@@ -214,6 +219,7 @@ class Room {
     this.countdown = 0;
     this.timeLimit = 0;
     this.timeRemaining = 0;
+    this.status = 0;
   }
 
 }

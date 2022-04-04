@@ -18,7 +18,7 @@ const Game = (props) => {
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', (data) => {
       setGameData(prev => {
-        if(prev?.turn !== data?.turn) {
+        if(data.status === 1) { // reset current on successful word input
           setCurrent([]);
         }
         return data
