@@ -55,12 +55,13 @@ const handleClose = (socket) => {
   if(roomObj) {
     const users = roomObj.removeUser(id);
     if(users.size === 0) {
-      roomObj.stopInterval();
+      roomObj.pauseInterval();
       roomUtil.remove(room);
-      console.log('PROCESS: Deleting empty room', `[${room}]`);
+      console.log('PROCESS: Starting room timeout', `[${room}]`);
+    } else {
+      broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+      roomObj.setStatus(0);
     }
-    broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
-    roomObj.setStatus(0);
   }
 }
 
@@ -110,18 +111,17 @@ listen('START', (socket) => {
   if(!roomObj || socket.id !== roomObj?.host) return;
   roomObj.start()
 
-  if(roomObj.getUsers().length > 1) { // delegate this code to util later on
+  if(roomObj.getUsers().length) { // delegate this code to util later on
     roomObj.startInterval(() => {
-    const countdownRes = roomObj.setCountdown(countdown => countdown - 1);
-    if(countdownRes === 0) {
-      roomObj.resetCountdown();
-      roomObj.nextTurn();
-      roomObj.recalculateKeys();
-      roomObj.removeOldest();
-    }
-    broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
-    roomObj.setStatus(0);
-  }, 1000);
+      const countdownRes = roomObj.setCountdown(countdown => countdown - 1);
+      if(countdownRes === 0) {
+        roomObj.resetCountdown();
+        roomObj.nextTurn();
+        roomObj.removeOldest();
+      }
+      broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+      roomObj.setStatus(0);
+    }, 1000);
   }
 
   broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());

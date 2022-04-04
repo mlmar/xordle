@@ -2,14 +2,10 @@ import { useEffect } from 'react';
 import socketUtil from '../util/SocketUtil';
 
 const SocketWrapper = (props) => {
-  const { children, onDisconnect } = props;
+  const { children, onReconnect } = props;
 
   useEffect(() => {
-    try {
-      socketUtil.init();
-    } catch (error) {
-      onDisconnect(error);
-    }
+    socketUtil.init(onReconnect);
   }, [])
 
   return (

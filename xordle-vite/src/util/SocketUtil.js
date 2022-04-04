@@ -3,25 +3,25 @@ import CONSTANTS from './Constants.jsx';
 
 export let client = null;
 
+let pingInterval = null;
+
 // function that listens for a specific action and performs a function on the payload
 const LISTENERS = {};
 const listen = (action, func) => action.split(' ').forEach(a => LISTENERS[a] = func);
 
-const pingServer = () => {
-  fetch(SERVER_URL + '/ping');
-  client.emit('PING');
-}
-
 const init = () => {
-  const id = client?.id;
-  const room = client?.room;
-
   if(client) {
     console.warn('Client already iniitialized. Removing existing client...');
     client.close();
+    clearInterval(pingInterval);
+    pingInterval = null;
   }
 
-  listen('PING PONG', () => {
+  const pingServer = () => {
+    client.emit('PING');
+  }
+
+  listen('PING', () => {
     console.log('Received server ping');
   });
 
@@ -49,12 +49,10 @@ const init = () => {
 
   client.addEventListener('close', (event) => {
     console.warn('Client closed. Reconnecting...');
-    setTimeout(() => {
-      init();
-    }, 1000);
+    init();
   });
 
-  setInterval(pingServer, CONSTANTS.PING_DELAY);
+  pingInterval = setInterval(pingServer, CONSTANTS.PING_DELAY);
 
   return client;
 }

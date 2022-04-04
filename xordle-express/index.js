@@ -5,7 +5,7 @@ require('dotenv').config();
 require('./util/WordUtil.js');
 
 app.use(cors({
-  origin: "*",
+  origin: '*',
   credentials: true,
   optionsSuccessStatus: 200,
   allowedHeaders: ['Content-Type']
@@ -18,19 +18,19 @@ respond = (status, message, data) => new Object({ status, message, data });
 
 const port = process.env.PORT || 3300;
 const server = app.listen(port, () => {
-  console.log("Listening on", port);
+  console.log('Listening on', port);
 });
 
 const socketServer = require('./socket/SocketServer.js');
 socketServer(server);
 
 app.get('/ping', (req, res) => {
-  res.send(respond(0, "pong", null));
+  res.send(respond(0, 'pong', null));
 });
 
 // SERVER STATIC DIRECTORYT IF NOT IN DEVELOPMENT
 if(!process.env.DEV) {
-  const REACT_DIRECTORY = "../xordle-vite/dist";
+  const REACT_DIRECTORY = '../xordle-vite/dist';
   const path = require('path');
 
   app.use(express.static(path.join(__dirname, REACT_DIRECTORY)))

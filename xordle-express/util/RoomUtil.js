@@ -1,6 +1,7 @@
 const WordUtil = require('./WordUtil.js');
 
 const ROOMS = new Map();
+const ROOM_TIMEOUTS = new Map();
 
 class Room {
   constructor(id, host) {
@@ -13,6 +14,7 @@ class Room {
     this.current = [];
     this.keys = {};
     this.history = [];
+    this.historySet = new Set();
     this.inProgress = false;
     this.word = '';
     this.reveal = false;
@@ -21,6 +23,7 @@ class Room {
     this.timeLimit = 0;
     this.timeRemaining = 0;
     this.status = 0;
+    this.paused = false;
   }
 
   getData() {
@@ -34,7 +37,7 @@ class Room {
       history: this.history,
       inProgress: this.inProgress,
       word: this.word,
-      timeRemaining: this.interval ? this.timeRemaining : -1,
+      timeRemaining: this.timeRemaining,
       status: this.status,
     }
   }
@@ -49,7 +52,14 @@ class Room {
 
   addUser(user) {
     this.users.add(user);
-    this
+    const roomTimeout = ROOM_TIMEOUTS.get(this.id);
+    if(roomTimeout) {
+      clearTimeout(roomTimeout);
+      console.log('PROCESS: Clearing room timeout for', `[${this.id}]`);
+      this.host = user;
+      this.turn = user;
+      this.unpauseInterval();
+    }
   }
 
   removeUser(user) {
@@ -57,7 +67,7 @@ class Room {
 
     if(this.host === user && this.users.size > 0) {
       this.host = Array.from(this.users)[0];
-      console.log('Picking', `[${this.host}]`, 'as new host for', `[${this.id}]`);
+      console.log('PROCESS: Picking', `[${this.host}]`, 'as new host for', `[${this.id}]`);
     }
 
     if(this.turn === user) {
@@ -111,10 +121,8 @@ class Room {
     return 6;
   }
 
-  recalculateKeys() {
-    this.history.forEach(({ letter, status }) => {
-      this.keys[letter] = this.keys[letter] ? Math.min(this.keys[letter], status) : status;
-    })
+  currentIsInHistory() {
+    return this.historySet.has(this.current.join(''));
   }
 
   enterWord() {
@@ -124,7 +132,7 @@ class Room {
     if(this.current.length < 5) {
       this.current = [];
       return true;
-    } else if(!found) {
+    } else if(!found || this.currentIsInHistory()) {
       this.current = [];
       return true;
     }
@@ -139,6 +147,7 @@ class Room {
     });
 
     this.history.push(newWord);
+    this.historySet.add(this.current.join(''));
 
     if(this.current.join('') === this.word) {
       this.turn = null;
@@ -169,7 +178,14 @@ class Room {
   }
 
   removeOldest() {
-    this.history.shift();
+    const word = this.history.shift();
+    this.historySet.delete(word);
+    this.keys = {};
+    this.history.forEach((word) => {
+      word.forEach(({ letter, status })  => {
+        this.keys[letter] = this.keys[letter] ? Math.min(this.keys[letter], status) : status;
+      });
+    });
   }
 
   setStatus(status) {
@@ -200,7 +216,7 @@ class Room {
   startInterval(callback, time) {
     if(this.interval) return;
     this.interval = setInterval(() => {
-      callback();
+      if(!this.paused) callback();
     }, time);
   }
 
@@ -210,16 +226,30 @@ class Room {
     this.interval = null;
   }
 
+  pauseInterval() {
+    this.paused = true;
+    console.log('PROCESS: Pausing interval for',`[${this.id}]`)
+  }
+
+  unpauseInterval() {
+    this.paused = false;
+    console.log('PROCESS: Unpausing interval for',`[${this.id}]`)
+  }
+
   start() {
     if(this.inProgress) return;
     this.turnIndex = Math.floor(Math.random() * this.users.size);
     this.turn = Array.from(this.users)[this.turnIndex];
     this.inProgress = true;
+    this.keys = {};
+    this.history = [];
+    this.historySet = new Set();
     this.word = WordUtil.getRandomWord();
     this.timeLimit = 30;
     this.countdown = this.timeLimit;
     this.timeRemaining = this.countdown / this.timeLimit;
     this.status = 0;
+    this.paused = false;
     // this.word = 'SPACE';
     console.log('WORD:', this.word);
   }
@@ -236,6 +266,7 @@ class Room {
     this.timeLimit = 0;
     this.timeRemaining = 0;
     this.status = 0;
+    this.paused = false;
   }
 
 }
@@ -257,10 +288,13 @@ const create = (host) => {
 }
 
 const remove = (room) => {
-  ROOMS.delete(room);
+  ROOM_TIMEOUTS.set(room, setTimeout(() => {
+    ROOMS.get(room).stopInterval();
+    ROOMS.delete(room);
+    ROOM_TIMEOUTS.delete(room);
+    console.log('PROCESS: Deleting room', `[${room}]`);
+  }, 30000));
 }
-
-
 
 const get = (room) => {
   return ROOMS.get(room);

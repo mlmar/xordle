@@ -94,13 +94,13 @@ const App = () => {
     }
   }
 
-  const handleDisconnect = () => {
-    dispatch({ type: 'viewMain' })
+  const handleReconnect = () => {
+    client.emit('VERIFY', { room: state.room });
   }
 
   return (
     <div className="app">
-      <SocketWrapper onDisconnect={handleDisconnect}>
+      <SocketWrapper onReconnect={handleReconnect}>
         {getView()}
       </SocketWrapper>
     </div>
