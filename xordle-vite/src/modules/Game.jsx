@@ -18,8 +18,10 @@ const Game = (props) => {
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', (data) => {
       setGameData(prev => {
-        if(data.status === 1) { // reset current on successful word input
+        if(data?.status === 1) { // reset current on successful word input
           setCurrent([]);
+        } else if(data?.host !== client.id) {
+          setCurrent(data?.current);
         }
         return data
       });

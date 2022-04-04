@@ -60,6 +60,7 @@ const handleClose = (socket) => {
       console.log('PROCESS: Deleting empty room', `[${room}]`);
     }
     broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+    this.setStatus(0);
   }
 }
 
@@ -109,7 +110,7 @@ listen('START', (socket) => {
   if(!roomObj || socket.id !== roomObj?.host) return;
   roomObj.start()
 
-  if(roomObj.getUsers().length > 1) {
+  if(roomObj.getUsers().length > 1) { // delegate this code to util later on
     roomObj.startInterval(() => {
     const countdownRes = roomObj.setCountdown(countdown => countdown - 1);
     if(countdownRes === 0) {
@@ -117,6 +118,7 @@ listen('START', (socket) => {
       roomObj.nextTurn();
     }
     broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+    roomObj.setStatus(0);
   }, 1000);
   }
 
