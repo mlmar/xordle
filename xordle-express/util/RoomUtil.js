@@ -75,6 +75,48 @@ class Room {
     this.word = word;
   }
 
+  // https://codereview.stackexchange.com/questions/274301/wordle-color-algorithm-in-javascript
+  getStatus(index) {
+    // correct (matched) index letter
+    if (this.current[index] === this.word[index]) {
+      return 1;
+    }
+
+    let wrongWord = 0
+    let wrongGuess = 0;
+    for (let i = 0; i < this.word.length; i++) {
+      // count the wrong (unmatched) letters
+      if (this.word[i] === this.current[index] && this.current[i] !== this.current[index] ) {
+        wrongWord++;
+      }
+      if (i <= index) {
+        if (this.current[i] === this.current[index] && this.word[i] !== this.current[index]) {
+          wrongGuess++;
+        }
+      }
+
+      // an unmatched guess letter is wrong if it pairs with 
+      // an unmatched word letter
+      if (i >= index) {
+        if (wrongGuess === 0) {
+          break;
+        } 
+        if (wrongGuess <= wrongWord) {
+          return 2;
+        }
+      }
+    }
+
+    // otherwise not any
+    return 6;
+  }
+
+  recalculateKeys() {
+    this.history.forEach(({ letter, status }) => {
+      this.keys[letter] = this.keys[letter] ? Math.min(this.keys[letter], status) : status;
+    })
+  }
+
   enterWord() {
     const found = WordUtil.findWord(this.current.join(''));
     this.status = 1;
@@ -87,44 +129,8 @@ class Room {
       return true;
     }
 
-    // https://codereview.stackexchange.com/questions/274301/wordle-color-algorithm-in-javascript
-    const getStatus = (index) => {
-      // correct (matched) index letter
-      if (this.current[index] === this.word[index]) {
-        return 1;
-      }
-
-      let wrongWord = 0
-      let wrongGuess = 0;
-      for (let i = 0; i < this.word.length; i++) {
-        // count the wrong (unmatched) letters
-        if (this.word[i] === this.current[index] && this.current[i] !== this.current[index] ) {
-          wrongWord++;
-        }
-        if (i <= index) {
-          if (this.current[i] === this.current[index] && this.word[i] !== this.current[index]) {
-            wrongGuess++;
-          }
-        }
-
-        // an unmatched guess letter is wrong if it pairs with 
-        // an unmatched word letter
-        if (i >= index) {
-          if (wrongGuess === 0) {
-            break;
-          } 
-          if (wrongGuess <= wrongWord) {
-            return 2;
-          }
-        }
-      }
-
-      // otherwise not any
-      return 6;
-    }
-
     const newWord = this.current.map((letter, i) => {
-      const status = getStatus(i);
+      const status = this.getStatus(i);
       this.keys[letter] = this.keys[letter] ? Math.min(this.keys[letter], status) : status;
       return {
         letter: letter.toUpperCase(),
@@ -137,6 +143,7 @@ class Room {
     if(this.current.join('') === this.word) {
       this.turn = null;
       this.reveal = true;
+      this.stopInterval();
     }
     this.current = [];
 
