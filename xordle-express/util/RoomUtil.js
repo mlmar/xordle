@@ -47,6 +47,7 @@ class Room {
 
   addUser(user) {
     this.users.add(user);
+    this
   }
 
   removeUser(user) {

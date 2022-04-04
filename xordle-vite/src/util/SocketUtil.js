@@ -13,8 +13,11 @@ const pingServer = () => {
 }
 
 const init = () => {
+  const { id, room } = client;
+
   if(client) {
-    console.warn('Socket already iniitialized');
+    console.warn('Client already iniitialized. Removing existing client...');
+    client.close();
   }
 
   listen('PING PONG', () => {
@@ -24,7 +27,7 @@ const init = () => {
   listen('SET_ID', (id) => {
     if(client) client.id = id;
     console.log('Socket initialized')
-  })
+  });
 
   client = new WebSocket(SOCKET_URL);
 
@@ -43,8 +46,11 @@ const init = () => {
     if(LISTENERS[action]) LISTENERS[action](payload);
   });
 
-  client.addEventListener('error', (event) => {
-    console.warn(event);
+  client.addEventListener('close', (event) => {
+    console.warn('Client closed. Reconnecting...');
+    setTimeout(() => {
+      init();
+    }, 1000);
   });
 
   setInterval(pingServer, CONSTANTS.PING_DELAY);
