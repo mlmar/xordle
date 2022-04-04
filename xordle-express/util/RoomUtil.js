@@ -151,6 +151,7 @@ class Room {
     } else if(val.length <= 5 && (/^[a-zA-Z]+$/.test(val.join('')))) {
       this.current = val;
     }
+    this.status = 0;
   }
 
   nextTurn() {
