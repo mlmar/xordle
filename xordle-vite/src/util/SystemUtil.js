@@ -1,4 +1,4 @@
-const DEV = true;
+const DEV = false;
 
 const LOCAL = 'localhost:3300';
 const DEPLOYED = 'xordle.herokuapp.com';
