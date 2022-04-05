@@ -10,7 +10,7 @@ let pingInterval = null;
 const LISTENERS = {};
 const listen = (action, func) => action.split(' ').forEach(a => LISTENERS[a] = func);
 
-const init = () => {
+const init = (onDisconnect) => {
   if(client) {
     console.warn('Client already initialized. Removing existing client...');
     client.close();
@@ -26,20 +26,19 @@ const init = () => {
     console.log('Received server ping');
   });
 
+  listen('RECONNECT', (success) => {
+    if(!success) onDisconnect()
+  });
+
   listen('SET_ID', (id) => {
     if(!client) return;
-
     client.id = id;
-
     if(previousID) {
       console.log('Reconnecting...');
       client.emit('RECONNECT', { previousID });
     }
-      
     previousID = id;
-
     console.log('Socket initialized');
-
   });
 
   client = new WebSocket(SOCKET_URL);

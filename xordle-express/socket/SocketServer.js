@@ -78,13 +78,14 @@ const handleJoin = (socket, payload) => {
   const roomObj = roomUtil.get(room);
   if(!roomObj) {
     console.log('ERROR',`[${room}]`,'does not exist');
-    return;
+    return false;
   }
   socket.room = room;
   roomObj.addUser(socket.id);
   roomUtil.print();
   console.log('STATUS: Client', `[${socket.id}]`, 'joined room', `[${payload.room}]`)
   broadcast([...roomObj.getUsers()], 'JOIN', roomObj.getData());
+  return true;
 }
 
 
@@ -98,8 +99,9 @@ listen('PING', (socket) => {
 listen('RECONNECT', (socket, payload) => {
   const { previousID } = payload;
   const room = DISCONNECTED_CLIENTS.get(previousID);
-  handleJoin(socket, { room })
+  const success = handleJoin(socket, { room })
   DISCONNECTED_CLIENTS.delete(previousID);
+  to(socket, 'RECONNECT', success);
 });
 
 listen('CREATE', (socket) => {
