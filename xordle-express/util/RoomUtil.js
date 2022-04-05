@@ -309,7 +309,7 @@ const remove = (room) => {
     ROOMS.delete(room);
     ROOM_TIMEOUTS.delete(room);
     console.log('PROCESS: Deleting room', `[${room}]`);
-  }, 5000));
+  }, 60000));
 }
 
 const get = (room) => {
