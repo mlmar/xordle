@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import './Game.css';
 import socketUtil, { client } from '../util/SocketUtil';
-import { isValidLetter } from '../util/Util';
 import GameBoard from './GameBoard';
 
 const Game = (props) => {
-  const { room } = props;
+  const { room, children } = props;
   
   const [gameData, setGameData] = useState(null);
   const [current, setCurrent] = useState([]);
@@ -17,8 +16,7 @@ const Game = (props) => {
     client.emit('JOIN', { room });
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', (data) => {
-      setGameData(prev => {
-        console.log(data?.status);
+      setGameData(() => {
         if(data?.status === 1) { // reset current on successful word input
           setCurrent([]);
         } else if(data?.status === 0 && data?.turn !== client.id) {
@@ -63,6 +61,8 @@ const Game = (props) => {
 
   return (
     <div className="flex-col flex-fill game">
+      {!gameData?.inProgress && children}
+
       { (gameData?.inProgress && !gameData?.turn) &&
         <div className="flex-col flex-fill game-end">
           <label className="game-end-label"> Word: </label>
@@ -80,6 +80,7 @@ const Game = (props) => {
           inProgress={gameData?.turn}
           timeRemaining={gameData?.timeRemaining}
           keyboardDisabled={gameData?.turn !== client?.id}
+          room={room}
         /> 
       }
       

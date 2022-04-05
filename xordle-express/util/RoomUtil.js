@@ -190,14 +190,14 @@ class Room {
     });
   }
 
+
   setStatus(status) {
     this.status = status;
   }
 
   setCountdown(numArg) {
     if(typeof numArg === 'function') {
-      const res = numArg(this.countdown);
-      this.countdown = res > 0 ? res : 0;
+      this.countdown = numArg(this.countdown);;
     } else {
       this.countdown = numArg;
     }
@@ -205,13 +205,21 @@ class Room {
     return this.countdown;
   }
 
+  getPenalizedTimeLimit() {
+    let penalty = 0;
+    this.word.split('').forEach((letter) => {
+      if(this.keys[letter] === 1) penalty++;
+    });
+    return this.timeLimit - this.timeLimit * .1 * penalty;
+  }
+
   resetCountdown() {
-    this.countdown = this.timeLimit;
+    this.countdown = this.getPenalizedTimeLimit();
     this.calculateProgress();
   }
 
   calculateProgress() {
-    this.timeRemaining = this.countdown / this.timeLimit;
+    this.timeRemaining = this.countdown / this.getPenalizedTimeLimit();
     return this.timeRemaining;
   }
 

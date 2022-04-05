@@ -50,6 +50,10 @@ const App = () => {
       }
   }
 
+  const handleBack = () => {
+    dispatch({ type: 'viewMain' });
+  }
+
   const handleCodeInput = (event) => {
     dispatch({ 
       type: 'setCodeInput', 
@@ -78,17 +82,28 @@ const App = () => {
   }
 
   const getView = () => {
+    const backBtn = state.view && <button className="back-btn" onClick={handleBack}> BACK </button>
     switch(state.view) {
       case 'game':
-        return <Game room={state.room}/>
+        return (
+          <Game room={state.room}>
+            {backBtn}
+          </Game>
+        );
+      case 'codeInput':
+        return (
+          <div className="main-screen flex-col flex-fill">
+            {backBtn}
+            <label className="flex title-label"> XORDLE </label>
+            {getCodeInput()}
+          </div>
+        );
       default:
         return (
           <div className="main-screen flex-col flex-fill">
+            {backBtn}
             <label className="flex title-label"> XORDLE </label>
-            { state.view !== 'codeInput' ?
-                <Menu options={CONSTANTS.MENU_OPTIONS} onClick={handleMenuClick}/> :
-                getCodeInput()
-            }
+            <Menu options={CONSTANTS.MENU_OPTIONS} onClick={handleMenuClick}/>
           </div>
         );
     }
@@ -112,7 +127,7 @@ const reducer = (state, action) => {
   const { type, payload } = action;
   switch(type) {
     case 'viewMain':
-      return { ...state, view: null };
+      return { ...state, view: null, room: null };
     case 'viewJoin':
       return { ...state, view: 'game', room: payload.room };
     case 'viewCodeInput':

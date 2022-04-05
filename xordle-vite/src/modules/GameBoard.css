@@ -1,5 +1,5 @@
 .game-board {
-  --side-padding: 1.5rem;
+  --side-padding: 1.2rem;
   overflow: hidden;
 }
 
@@ -23,7 +23,7 @@
 }
 
 .game-board-list {
-  padding: 1rem var(--side-padding);
+  padding: 3rem var(--side-padding);
 }
 
 .game-board ::-webkit-scrollbar {

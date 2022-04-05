@@ -9,6 +9,8 @@ const roomUtil = require('../util/RoomUtil.js');
 const CLIENTS = new Map();
 const LISTENERS = {};
 const listen = (action, func) => LISTENERS[action] = func;
+const DISCONNECTED_CLIENTS = new Map();
+
 
 // broadcasts to all users in an array
 const broadcast = (sockets, action, payload) => {
@@ -57,31 +59,21 @@ const handleClose = (socket) => {
     if(users.size === 0) {
       roomObj.pauseInterval();
       roomUtil.remove(room);
-      console.log('PROCESS: Starting room timeout', `[${room}]`);
+      console.log('PROCESS: Starting room timeout for', `[${room}]`);
     } else {
       broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
       roomObj.setStatus(0);
     }
+    DISCONNECTED_CLIENTS.set(id, room);
   }
 }
 
 
 
-/*** message listeners ***/
 
-listen('PING', (socket) => {
-  to(socket, 'PING');
-});
+/*** specific message handlers  ***/
 
-listen('CREATE', (socket) => {
-  const room = roomUtil.create(socket.id);
-  socket.room = room;
-  to(socket, 'CREATE', room);
-  console.log('PROCESS: Creating room',`[${room}]`);
-});
-
-
-listen('JOIN', (socket, payload) => {
+const handleJoin = (socket, payload) => {
   const { room } = payload;
   const roomObj = roomUtil.get(room);
   if(!roomObj) {
@@ -93,7 +85,31 @@ listen('JOIN', (socket, payload) => {
   roomUtil.print();
   console.log('STATUS: Client', `[${socket.id}]`, 'joined room', `[${payload.room}]`)
   broadcast([...roomObj.getUsers()], 'JOIN', roomObj.getData());
+}
+
+
+
+/*** message listeners ***/
+
+listen('PING', (socket) => {
+  to(socket, 'PING');
 });
+
+listen('RECONNECT', (socket, payload) => {
+  const { previousID } = payload;
+  const room = DISCONNECTED_CLIENTS.get(previousID);
+  handleJoin(socket, { room })
+  DISCONNECTED_CLIENTS.delete(previousID);
+});
+
+listen('CREATE', (socket) => {
+  const room = roomUtil.create(socket.id);
+  socket.room = room;
+  to(socket, 'CREATE', room);
+  console.log('PROCESS: Creating room',`[${room}]`);
+});
+
+listen('JOIN', handleJoin);
 
 listen('VERIFY', (socket, payload) => {
   const { room } = payload;
@@ -115,9 +131,9 @@ listen('START', (socket) => {
     roomObj.startInterval(() => {
       const countdownRes = roomObj.setCountdown(countdown => countdown - 1);
       if(countdownRes === 0) {
-        roomObj.resetCountdown();
         roomObj.nextTurn();
         roomObj.removeOldest();
+        roomObj.resetCountdown();
       }
       broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
       roomObj.setStatus(0);

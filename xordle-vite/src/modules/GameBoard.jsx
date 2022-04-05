@@ -5,7 +5,7 @@ import { getClassNameByStatus, getClassNameByProgress, isValidLetter } from '../
 import Keyboard from './Keyboard';
 
 const GameBoard = (props) => {
-  const { keys, history, inProgress, timeRemaining, keyboardDisabled, onKeyPress, current } = props;
+  const { keys, history, inProgress, timeRemaining, keyboardDisabled, onKeyPress, current, room } = props;
   const gameBoardRef = useRef(null);
   const lastWordRef = useRef(null);
 
@@ -60,6 +60,7 @@ const GameBoard = (props) => {
 
   return (
     <div className="game-board flex-col flex-fill " onKeyDown={handleKeyDown} tabIndex="0" ref={gameBoardRef}>
+      <label className="floating-purple-text float-right"> {room} </label>
       <div className="flex-col flex-fill overflow game-board-list">
         {getHistory()}
         <div className="flex game-board-current" ref={lastWordRef} key={history?.length}>

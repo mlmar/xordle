@@ -1,7 +1,8 @@
-import { SOCKET_URL, SERVER_URL } from './SystemUtil';
+import { SOCKET_URL } from './SystemUtil';
 import CONSTANTS from './Constants.jsx';
 
 export let client = null;
+let previousID = null;
 
 let pingInterval = null;
 
@@ -11,7 +12,7 @@ const listen = (action, func) => action.split(' ').forEach(a => LISTENERS[a] = f
 
 const init = () => {
   if(client) {
-    console.warn('Client already iniitialized. Removing existing client...');
+    console.warn('Client already initialized. Removing existing client...');
     client.close();
     clearInterval(pingInterval);
     pingInterval = null;
@@ -26,8 +27,19 @@ const init = () => {
   });
 
   listen('SET_ID', (id) => {
-    if(client) client.id = id;
-    console.log('Socket initialized')
+    if(!client) return;
+
+    client.id = id;
+
+    if(previousID) {
+      console.log('Reconnecting...');
+      client.emit('RECONNECT', { previousID });
+    }
+      
+    previousID = id;
+
+    console.log('Socket initialized');
+
   });
 
   client = new WebSocket(SOCKET_URL);
@@ -47,7 +59,7 @@ const init = () => {
     if(LISTENERS[action]) LISTENERS[action](payload);
   });
 
-  client.addEventListener('close', (event) => {
+  client.addEventListener('close', () => {
     console.warn('Client closed. Reconnecting...');
     init();
   });

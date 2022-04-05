@@ -102,6 +102,20 @@ button, button:focus {
 }
 
 
+.float-left, .back-btn {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 99;
+}
+
+.float-right {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 99;
+}
+
 
 .input, .input:focus {
   padding: .5rem 0;
@@ -122,6 +136,12 @@ button, button:focus {
   opacity: .6;
 }
 
+.floating-purple-text, .back-btn {
+  font-size: 1.3rem;
+  font-weight: bold;
+  background: transparent;
+  color: var(--purple);
+}
 
 .main-screen {
   align-items: center;

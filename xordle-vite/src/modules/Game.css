@@ -52,7 +52,7 @@
   color: var(--purple);
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 4rem 2rem 2rem;
 }
 
 .game-lobby p {
