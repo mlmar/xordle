@@ -223,7 +223,7 @@ class Room {
         smallPenalty++;
       }
     });
-    this.timeLimitPenalized = this.timeLimit - (this.timeLimit * .12 * bigPenalty) - (this.timeLimit * .07 * smallPenalty);
+    this.timeLimitPenalized = this.timeLimit - (this.timeLimit * .15 * bigPenalty) - (this.timeLimit * .05 * smallPenalty);
   }
 
 
