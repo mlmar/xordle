@@ -19,6 +19,7 @@ const App = () => {
       });
       sending.current = false;
     });
+
     socketUtil.listen('VERIFY', (room) => {
       sending.current = false;
       if(!room) return;
@@ -26,6 +27,10 @@ const App = () => {
         type: 'viewJoin',
         payload: { room: room }
       });
+    });
+
+    socketUtil.listen('RECONNECT', (success) => {
+      if(!success) dispatch({ type: 'viewMain '});
     });
   }, []);
 
@@ -51,6 +56,7 @@ const App = () => {
   }
 
   const handleBack = () => {
+    client.emit('LEAVE');
     dispatch({ type: 'viewMain' });
   }
 
@@ -109,13 +115,9 @@ const App = () => {
     }
   }
 
-  const handleDisconnect = () => {
-    dispatch({ type: 'viewMain' });
-  }
-
   return (
     <div className="app">
-      <SocketWrapper onDisconnect={handleDisconnect}>
+      <SocketWrapper>
         {getView()}
       </SocketWrapper>
     </div>

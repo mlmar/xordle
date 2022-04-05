@@ -10,7 +10,7 @@ let pingInterval = null;
 const LISTENERS = {};
 const listen = (action, func) => action.split(' ').forEach(a => LISTENERS[a] = func);
 
-const init = (onDisconnect) => {
+const init = () => {
   if(client) {
     console.warn('Client already initialized. Removing existing client...');
     client.close();
@@ -24,10 +24,6 @@ const init = (onDisconnect) => {
 
   listen('PING', () => {
     console.log('Received server ping');
-  });
-
-  listen('RECONNECT', (success) => {
-    if(!success) onDisconnect()
   });
 
   listen('SET_ID', (id) => {

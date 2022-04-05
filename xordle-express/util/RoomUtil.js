@@ -304,11 +304,12 @@ const create = (host) => {
 
 const remove = (room) => {
   ROOM_TIMEOUTS.set(room, setTimeout(() => {
+    if(!ROOMS.get(room)) return;
     ROOMS.get(room).stopInterval();
     ROOMS.delete(room);
     ROOM_TIMEOUTS.delete(room);
     console.log('PROCESS: Deleting room', `[${room}]`);
-  }, 30000));
+  }, 5000));
 }
 
 const get = (room) => {

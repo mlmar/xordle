@@ -55,15 +55,7 @@ const handleClose = (socket) => {
   const roomObj = roomUtil.get(room);
   console.log('STATUS: Client', `[${id}]`, 'disconnected');
   if(roomObj) {
-    const users = roomObj.removeUser(id);
-    if(users.size === 0) {
-      roomObj.pauseInterval();
-      roomUtil.remove(room);
-      console.log('PROCESS: Starting room timeout for', `[${room}]`);
-    } else {
-      broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
-      roomObj.setStatus(0);
-    }
+    handleLeave(socket)
     DISCONNECTED_CLIENTS.set(id, room);
   }
 }
@@ -77,7 +69,7 @@ const handleJoin = (socket, payload) => {
   const { room } = payload;
   const roomObj = roomUtil.get(room);
   if(!roomObj) {
-    console.log('ERROR',`[${room}]`,'does not exist');
+    console.log('STATUS: Room',`[${room}]`,'does not exist');
     return false;
   }
   socket.room = room;
@@ -86,6 +78,21 @@ const handleJoin = (socket, payload) => {
   console.log('STATUS: Client', `[${socket.id}]`, 'joined room', `[${payload.room}]`)
   broadcast([...roomObj.getUsers()], 'JOIN', roomObj.getData());
   return true;
+}
+
+const handleLeave = (socket) => {
+  const { room, id } = socket;
+  const roomObj = roomUtil.get(room);
+  if(!roomObj) return;
+  const users = roomObj.removeUser(id);
+  if(users.size === 0) {
+    roomObj.pauseInterval();
+    roomUtil.remove(room);
+    console.log('PROCESS: Starting room timeout for', `[${room}]`);
+  } else {
+    broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+    roomObj.setStatus(0);
+  }
 }
 
 
@@ -101,6 +108,7 @@ listen('RECONNECT', (socket, payload) => {
   const room = DISCONNECTED_CLIENTS.get(previousID);
   const success = handleJoin(socket, { room })
   DISCONNECTED_CLIENTS.delete(previousID);
+  
   to(socket, 'RECONNECT', success);
 });
 
@@ -112,6 +120,10 @@ listen('CREATE', (socket) => {
 });
 
 listen('JOIN', handleJoin);
+
+listen('LEAVE', (socket) => {
+  handleLeave(socket)
+});
 
 listen('VERIFY', (socket, payload) => {
   const { room } = payload;
