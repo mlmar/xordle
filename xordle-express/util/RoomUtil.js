@@ -206,11 +206,16 @@ class Room {
   }
 
   getPenalizedTimeLimit() {
-    let penalty = 0;
+    let bigPenalty = 0;
+    let smallPenalty = 0;
     this.word.split('').forEach((letter) => {
-      if(this.keys[letter] === 1) penalty++;
+      if(this.keys[letter] === 1) {
+        bigPenalty++;
+      } else if(this.keys[letter] === 2) {
+        smallPenalty++;
+      }
     });
-    return this.timeLimit - this.timeLimit * .1 * penalty;
+    return this.timeLimit - (this.timeLimit * .1 * bigPenalty) - (this.timeLimit * .05 * smallPenalty);
   }
 
   resetCountdown() {
