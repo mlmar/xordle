@@ -144,6 +144,7 @@ listen('START', (socket) => {
   if(roomObj.getUsers().length) { // delegate this code to util later on
     roomObj.startInterval(() => {
       const countdownRes = roomObj.setCountdown(countdown => countdown - 1);
+      console.log(countdownRes)
       if(countdownRes === 0) {
         roomObj.nextTurn();
         roomObj.removeOldest();

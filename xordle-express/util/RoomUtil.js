@@ -21,6 +21,7 @@ class Room {
 
     this.countdown = 0;
     this.timeLimit = 0;
+    this.timeLimitPenalized = 0;
     this.timeRemaining = 0;
     this.status = 0;
     this.paused = false;
@@ -195,9 +196,16 @@ class Room {
     this.status = status;
   }
 
+  resetCountdown() {
+    this.calculateTimeLimitPenalized();
+    this.countdown = this.timeLimitPenalized;
+    this.calculateProgress();
+  }
+
   setCountdown(numArg) {
     if(typeof numArg === 'function') {
-      this.countdown = numArg(this.countdown);;
+      const res = numArg(this.countdown)
+      this.countdown = res > 0 ? res : 0;
     } else {
       this.countdown = numArg;
     }
@@ -205,7 +213,7 @@ class Room {
     return this.countdown;
   }
 
-  getPenalizedTimeLimit() {
+  calculateTimeLimitPenalized() {
     let bigPenalty = 0;
     let smallPenalty = 0;
     this.word.split('').forEach((letter) => {
@@ -215,16 +223,12 @@ class Room {
         smallPenalty++;
       }
     });
-    return this.timeLimit - (this.timeLimit * .1 * bigPenalty) - (this.timeLimit * .05 * smallPenalty);
+    this.timeLimitPenalized = this.timeLimit - (this.timeLimit * .1 * bigPenalty) - (this.timeLimit * .05 * smallPenalty);
   }
 
-  resetCountdown() {
-    this.countdown = this.getPenalizedTimeLimit();
-    this.calculateProgress();
-  }
 
   calculateProgress() {
-    this.timeRemaining = this.countdown / this.getPenalizedTimeLimit();
+    this.timeRemaining = this.countdown / this.timeLimitPenalized;
     return this.timeRemaining;
   }
 
@@ -261,7 +265,8 @@ class Room {
     this.historySet = new Set();
     this.word = WordUtil.getRandomWord();
     this.timeLimit = 30;
-    this.countdown = this.timeLimit;
+    this.timeLimitPenalized = this.timeLimit;
+    this.countdown = this.timeLimitPenalized;
     this.timeRemaining = this.countdown / this.timeLimit;
     this.status = 0;
     this.paused = false;
@@ -277,9 +282,10 @@ class Room {
     this.history = [];
     this.word = '';
     this.reveal = false;
-    this.countdown = 0;
     this.timeLimit = 0;
+    this.timeLimitPenalized = 0
     this.timeRemaining = 0;
+    this.countdown = 0;
     this.status = 0;
     this.paused = false;
   }
