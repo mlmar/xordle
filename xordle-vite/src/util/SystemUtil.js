@@ -1,4 +1,4 @@
-const DEV = true;
+const DEV = false;
 
 const LOCAL = 'localhost:3300';
 // const LOCAL = '192.168.0.87:3300';
