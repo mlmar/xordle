@@ -3,6 +3,10 @@ const WordUtil = require('./WordUtil.js');
 const ROOMS = new Map();
 const ROOM_TIMEOUTS = new Map();
 
+const BIG_PENALITY_MULTIPLIER = .15;
+const SMALL_PENALTY_MULTIPLIER = .05;
+const TIME_LIMIT = 31;
+
 class Room {
   constructor(id, host) {
     this.id = id;
@@ -214,16 +218,20 @@ class Room {
   }
 
   calculateTimeLimitPenalized() {
-    let bigPenalty = 0;
-    let smallPenalty = 0;
+    let bigPenalityCount = 0;
+    let smallPenaltyCount = 0;
     this.word.split('').forEach((letter) => {
       if(this.keys[letter] === 1) {
-        bigPenalty++;
+        bigPenalityCount++;
       } else if(this.keys[letter] === 2) {
-        smallPenalty++;
+        smallPenaltyCount++;
       }
     });
-    this.timeLimitPenalized = this.timeLimit - (this.timeLimit * .15 * bigPenalty) - (this.timeLimit * .05 * smallPenalty);
+
+    const size = this.users.size;
+    const bp = (this.timeLimit - size) * BIG_PENALITY_MULTIPLIER * bigPenalityCount;
+    const sp = (this.timeLimit - size) * SMALL_PENALTY_MULTIPLIER * smallPenaltyCount;
+    this.timeLimitPenalized = Math.max(10, this.timeLimit - bp - sp - this.users.size);
   }
 
 
@@ -264,7 +272,7 @@ class Room {
     this.history = [];
     this.historySet = new Set();
     this.word = WordUtil.getRandomWord();
-    this.timeLimit = 30;
+    this.timeLimit = TIME_LIMIT;
     this.timeLimitPenalized = this.timeLimit;
     this.countdown = this.timeLimitPenalized;
     this.timeRemaining = this.countdown / this.timeLimit;
