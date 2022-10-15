@@ -10,12 +10,13 @@ const Keyboard = (props) => {
   const handleClick = (event) => {
     if(disabled) return;
     event.preventDefault();
-    if(event.target.id) {
-      if(onClick) onClick({ key: event.target.id });
+    if(event.touches) {
+      const key = event.touches?.[0]?.target?.id;
+      if(onClick && key) onClick({ key: key });
     } else {
-      event.touches?.forEach((target) => {
-        if(onClick) onClick({ key: target.id });
-      });
+      if(event.target.id) {
+        if(onClick) onClick({ key: event.target.id });
+      }
     }
   }
 
@@ -31,7 +32,7 @@ const Keyboard = (props) => {
   }
 
   return (
-    <div className={"keyboard flex-col " + (disabled ? 'disabled' : '')} onTouchStart={handleClick} onClick={handleClick}>
+    <div className={"keyboard flex-col " + (disabled ? 'disabled' : '')} onTouchEnd={handleClick} onClick={handleClick}>
       {constructRow(0)}
       {constructRow(1)}
       {constructRow(2, <Key letter={'ENTER'} status={3} id="enter"/>, <Key letter={<>&#171;</>} status={3} id="backspace"/>)}

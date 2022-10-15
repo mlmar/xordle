@@ -33,7 +33,7 @@ const Game = (props) => {
       if(current.length === 5) {
         client.emit('ENTER_WORD', { current });        
       }
-      setCurrent([]);
+      setCurrent([])
     } else if(letter) {
       setCurrent(prev => {
         const res = prev.length < 5 ? [...prev, letter] : prev;
