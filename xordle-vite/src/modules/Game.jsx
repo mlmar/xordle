@@ -23,7 +23,7 @@ const Game = (props) => {
           setCurrent([]);
         }
       });
-      return prev;
+      return playerData;
     });
   }, []);
 
