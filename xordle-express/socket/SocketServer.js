@@ -173,9 +173,9 @@ listen('ENTER_WORD', (socket, payload) => {
   const { room } = socket;
   const roomObj = roomUtil.get(room);
   if(!roomObj) return;
-  roomObj.enterWord(socket.id, payload.current);
+  const correct = roomObj.enterWord(socket.id, payload.current);
   broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
-  to(socket, 'PLAYER_UPDATE', roomObj.getPlayerData(socket.id));
+  to(socket, 'PLAYER_UPDATE', { ...roomObj.getPlayerData(socket.id), correct });
 });
 
 /*

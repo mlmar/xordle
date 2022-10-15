@@ -79,9 +79,9 @@ class Player {
     const found = WordUtil.findWord(currentWordString);
 
     if(currentWord.length < 5 || !found) {
+      console.log('Invalid word', currentWord);
       return false;
     } else if(this.currentIsInHistory(currentWordString)) {
-      this.resetCountdown();
       return false;
     }
 

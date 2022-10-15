@@ -17,13 +17,12 @@ const Game = (props) => {
     client.emit('JOIN', { room });
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', setGameData);
-    socketUtil.listen('PLAYER_UPDATE', (playerData) => {
-      setPlayerData((prev) => {
-        if(prev?.history?.length < playerData?.history?.length) {
-          setCurrent([]);
-        }
-        return playerData;
-      });
+    socketUtil.listen('PLAYER_UPDATE', (data) => {
+      if(data?.correct === false || data?.correct === true) {
+        console.log(data?.correct);
+        setCurrent([])
+      }
+      setPlayerData(data);
     });
   }, []);
 
@@ -40,6 +39,7 @@ const Game = (props) => {
       if(current.length === 5) {
         client.emit('ENTER_WORD', { current });        
       }
+      setCurrent([]);
     } else if(letter) {
       setCurrent(prev => {
         const res = prev.length < 5 ? [...prev, letter] : prev;

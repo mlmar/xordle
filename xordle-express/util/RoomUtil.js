@@ -89,6 +89,7 @@ class Room {
     } else {
       this.status = 2;
     }
+    return correct;
   }
 
   decrementCountdown() {
