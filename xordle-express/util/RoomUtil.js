@@ -1,32 +1,20 @@
 const WordUtil = require('./WordUtil.js');
+const Player = require('./PlayerUtil.js');
 
 const ROOMS = new Map();
 const ROOM_TIMEOUTS = new Map();
 
-const BIG_PENALITY_MULTIPLIER = .15;
-const SMALL_PENALTY_MULTIPLIER = .05;
-const TIME_LIMIT = 31;
-
 class Room {
-  constructor(id, host) {
+  constructor(id, host, hostName) {
     this.id = id;
     this.host = host;
     this.users = new Set([host]);
+    this.players = new Map().set(host, new Player(host, generateName(this.users, hostName)));
+    
     this.interval = null;
-    this.turn = null;
-    this.turnIndex = null;
-    this.current = [];
-    this.keys = {};
-    this.history = [];
-    this.historySet = new Set();
-    this.inProgress = false;
     this.word = '';
-    this.reveal = false;
+    this.winOrder = [];
 
-    this.countdown = 0;
-    this.timeLimit = 0;
-    this.timeLimitPenalized = 0;
-    this.timeRemaining = 0;
     this.status = 0;
     this.paused = false;
   }
@@ -36,15 +24,18 @@ class Room {
       host: this.host,
       id: this.id,
       playerCount: this.users.size,
-      turn: this.turn,
-      current: this.current,
-      keys: this.keys,
-      history: this.history,
-      inProgress: this.inProgress,
-      word: this.word,
-      timeRemaining: this.timeRemaining,
       status: this.status,
+      word: this.status === 2 ? this.word : null,
+      winOrder: this.winOrder
     }
+  }
+
+  getPlayerData(id) {
+    return this.players.get(id)?.getData();
+  }
+
+  getDefaultPlayerData() {
+    return Player.getDefaultData();
   }
 
   getID() {
@@ -55,8 +46,9 @@ class Room {
     return this.host;
   }
 
-  addUser(user) {
+  addUser(user, name) {
     this.users.add(user);
+    this.players.set(user, this.players.get(user) || new Player(user, generateName(this.users, name)));
     const roomTimeout = ROOM_TIMEOUTS.get(this.id);
     if(roomTimeout) {
       clearTimeout(roomTimeout);
@@ -75,10 +67,6 @@ class Room {
       console.log('PROCESS: Picking', `[${this.host}]`, 'as new host for', `[${this.id}]`);
     }
 
-    if(this.turn === user) {
-      this.nextTurn();
-    }
-
     return this.users;
   }
 
@@ -90,154 +78,21 @@ class Room {
     this.word = word;
   }
 
-  // https://codereview.stackexchange.com/questions/274301/wordle-color-algorithm-in-javascript
-  getStatus(index) {
-    // correct (matched) index letter
-    if (this.current[index] === this.word[index]) {
-      return 1;
+  enterWord(id, currentWord) {
+    const correct = this.players.get(id)?.enterWord(currentWord, this.word);
+    if(correct) {
+      this.winOrder.push(this.players.get(id).getName());
     }
 
-    let wrongWord = 0
-    let wrongGuess = 0;
-    for (let i = 0; i < this.word.length; i++) {
-      // count the wrong (unmatched) letters
-      if (this.word[i] === this.current[index] && this.current[i] !== this.current[index] ) {
-        wrongWord++;
-      }
-      if (i <= index) {
-        if (this.current[i] === this.current[index] && this.word[i] !== this.current[index]) {
-          wrongGuess++;
-        }
-      }
-
-      // an unmatched guess letter is wrong if it pairs with 
-      // an unmatched word letter
-      if (i >= index) {
-        if (wrongGuess === 0) {
-          break;
-        } 
-        if (wrongGuess <= wrongWord) {
-          return 2;
-        }
-      }
-    }
-
-    // otherwise not any
-    return 6;
-  }
-
-  currentIsInHistory() {
-    return this.historySet.has(this.current.join(''));
-  }
-
-  enterWord() {
-    const found = WordUtil.findWord(this.current.join(''));
-    this.status = 1;
-
-    if(this.current.length < 5) {
-      this.current = [];
-      return true;
-    } else if(!found || this.currentIsInHistory()) {
-      this.current = [];
-      return true;
-    }
-
-    const newWord = this.current.map((letter, i) => {
-      const status = this.getStatus(i);
-      this.keys[letter] = this.keys[letter] ? Math.min(this.keys[letter], status) : status;
-      return {
-        letter: letter.toUpperCase(),
-        status: status,
-      }
-    });
-
-    this.history.push(newWord);
-    this.historySet.add(this.current.join(''));
-
-    if(this.current.join('') === this.word) {
-      this.turn = null;
-      this.reveal = true;
-      this.stopInterval();
-    }
-    this.current = [];
-
-    return this.turn === null;
-  }
-
-  setCurrent(val) {
-    if(val.length === 0) {
-      this.current = [];
-    } else if(val.length <= 5 && (/^[a-zA-Z]+$/.test(val.join('')))) {
-      this.current = val;
-    }
-    this.status = 0;
-  }
-
-  nextTurn() {
-    if(++this.turnIndex >= this.users.size) {
-      this.turnIndex = 0;
-    }
-    this.turn = Array.from(this.users)[this.turnIndex];
-    this.current = [];
-    this.status = 1;
-  }
-
-  removeOldest() {
-    const word = this.history.shift();
-    if(word) {
-      this.historySet.delete(word.map(({ letter }) => letter).join(''));
-    }
-    this.keys = {};
-    this.history.forEach((word) => {
-      word.forEach(({ letter, status })  => {
-        this.keys[letter] = this.keys[letter] ? Math.min(this.keys[letter], status) : status;
-      });
-    });
-  }
-
-
-  setStatus(status) {
-    this.status = status;
-  }
-
-  resetCountdown() {
-    this.calculateTimeLimitPenalized();
-    this.countdown = this.timeLimitPenalized;
-    this.calculateProgress();
-  }
-
-  setCountdown(numArg) {
-    if(typeof numArg === 'function') {
-      const res = numArg(this.countdown)
-      this.countdown = res > 0 ? res : 0;
+    if(this.winOrder.length < this.users.size) {
+      this.status = 1;
     } else {
-      this.countdown = numArg;
+      this.status = 2;
     }
-    this.calculateProgress();
-    return this.countdown;
   }
 
-  calculateTimeLimitPenalized() {
-    let bigPenalityCount = 0;
-    let smallPenaltyCount = 0;
-    this.word.split('').forEach((letter) => {
-      if(this.keys[letter] === 1) {
-        bigPenalityCount++;
-      } else if(this.keys[letter] === 2) {
-        smallPenaltyCount++;
-      }
-    });
-
-    const size = this.users.size;
-    const bp = (this.timeLimit - size) * BIG_PENALITY_MULTIPLIER * bigPenalityCount;
-    const sp = (this.timeLimit - size) * SMALL_PENALTY_MULTIPLIER * smallPenaltyCount;
-    this.timeLimitPenalized = Math.max(10, this.timeLimit - bp - sp - this.users.size);
-  }
-
-
-  calculateProgress() {
-    this.timeRemaining = this.countdown / this.timeLimitPenalized;
-    return this.timeRemaining;
+  decrementCountdown() {
+    this.players.forEach(player => player.setCountdown(c => c - 1));
   }
 
   startInterval(callback, time) {
@@ -264,38 +119,25 @@ class Room {
   }
 
   start() {
-    if(this.inProgress) return;
-    this.turnIndex = Math.floor(Math.random() * this.users.size);
-    this.turn = Array.from(this.users)[this.turnIndex];
+    if(this.status > 0) return;
     this.inProgress = true;
-    this.keys = {};
-    this.history = [];
-    this.historySet = new Set();
+    this.players.forEach(player => player?.start());
     this.word = WordUtil.getRandomWord();
-    this.timeLimit = TIME_LIMIT;
-    this.timeLimitPenalized = this.timeLimit;
-    this.countdown = this.timeLimitPenalized;
-    this.timeRemaining = this.countdown / this.timeLimit;
-    this.status = 0;
+    this.status = 1;
     this.paused = false;
+    this.winOrder = [];
     // this.word = 'SPACE';
     console.log('WORD:', this.word);
   }
   
   end() {
     this.turn = null;
-    this.inProgress = false;
     this.word = [];
-    this.keys = {};
-    this.history = [];
+    this.players.forEach(player => player?.reset());
     this.word = '';
-    this.reveal = false;
-    this.timeLimit = 0;
-    this.timeLimitPenalized = 0
-    this.timeRemaining = 0;
-    this.countdown = 0;
     this.status = 0;
     this.paused = false;
+    this.winOrder = [];
   }
 
 }
@@ -310,9 +152,9 @@ const randomID = () => {
   return result;
 }
 
-const create = (host) => {
+const create = (host, hostName) => {
   const id = randomID();
-  ROOMS.set(id, new Room(id, host));
+  ROOMS.set(id, new Room(id, host, hostName));
   return id;
 }
 
@@ -332,6 +174,10 @@ const get = (room) => {
 
 const print = () => {
   console.log(ROOMS);
+}
+
+const generateName = (users, name) => {
+  return (name || 'PLAYER ' + (users.size));
 }
 
 module.exports = { create, remove, get, print };

@@ -73,7 +73,7 @@ const handleJoin = (socket, payload) => {
     return false;
   }
   socket.room = room;
-  roomObj.addUser(socket.id);
+  roomObj.addUser(socket.id, socket.name);
   roomUtil.print();
   console.log('STATUS: Client', `[${socket.id}]`, 'joined room', `[${payload.room}]`)
   broadcast([...roomObj.getUsers()], 'JOIN', roomObj.getData());
@@ -91,7 +91,6 @@ const handleLeave = (socket) => {
     console.log('PROCESS: Starting room timeout for', `[${room}]`);
   } else {
     broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
-    roomObj.setStatus(0);
   }
 }
 
@@ -103,8 +102,14 @@ listen('PING', (socket) => {
   to(socket, 'PING');
 });
 
+listen('NAME', (socket, payload) => {
+  socket.name = payload.name;
+  console.log('NAME: Setting name for socket',`[${socket.id}]`, 'to', payload.name);
+});
+
 listen('RECONNECT', (socket, payload) => {
   const { previousID } = payload;
+  console.log('RECONNECT: Socket',`[${previousID}]`,'attempting to connect');
   const room = DISCONNECTED_CLIENTS.get(previousID);
   const success = handleJoin(socket, { room })
   DISCONNECTED_CLIENTS.delete(previousID);
@@ -113,7 +118,7 @@ listen('RECONNECT', (socket, payload) => {
 });
 
 listen('CREATE', (socket) => {
-  const room = roomUtil.create(socket.id);
+  const room = roomUtil.create(socket.id, socket.name);
   socket.room = room;
   to(socket, 'CREATE', room);
   console.log('PROCESS: Creating room',`[${room}]`);
@@ -143,19 +148,16 @@ listen('START', (socket) => {
 
   if(roomObj.getUsers().length) { // delegate this code to util later on
     roomObj.startInterval(() => {
-      const countdownRes = roomObj.setCountdown(countdown => countdown - 1);
-      console.log(countdownRes)
-      if(countdownRes === 0) {
-        roomObj.nextTurn();
-        roomObj.removeOldest();
-        roomObj.resetCountdown();
-      }
+      roomObj.decrementCountdown();
+      roomObj.getUsers().forEach(id => {
+        to(CLIENTS.get(id), 'PLAYER_UPDATE', roomObj.getPlayerData(id));
+      })
       broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
-      roomObj.setStatus(0);
     }, 1000);
   }
 
   broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+  broadcast([...roomObj.getUsers()], 'PLAYER_UPDATE', roomObj.getDefaultPlayerData());
 });
 
 listen('END', (socket) => {
@@ -167,24 +169,13 @@ listen('END', (socket) => {
   broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
 })
 
-listen('SET_CURRENT', (socket, payload) => {
+listen('ENTER_WORD', (socket, payload) => {
   const { room } = socket;
   const roomObj = roomUtil.get(room);
-  if(!roomObj || socket.id !== roomObj?.turn) return;
-  roomObj.setCurrent(payload.current);
+  if(!roomObj) return;
+  roomObj.enterWord(socket.id, payload.current);
   broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
-});
-
-listen('ENTER_WORD', (socket) => {
-  const { room } = socket;
-  const roomObj = roomUtil.get(room);
-  if(!roomObj || socket.id !== roomObj?.turn) return;
-  if(!roomObj.enterWord()) {
-    roomObj.nextTurn();
-    roomObj.resetCountdown();
-  }
-  broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
-  roomObj.setStatus(0);
+  to(socket, 'PLAYER_UPDATE', roomObj.getPlayerData(socket.id));
 });
 
 /*

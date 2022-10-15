@@ -30,7 +30,7 @@ const App = () => {
     });
 
     socketUtil.listen('RECONNECT', (success) => {
-      if(!success) dispatch({ type: 'viewMain '});
+      if(!success) dispatch({ type: 'viewMain'});
     });
   }, []);
 
@@ -87,6 +87,35 @@ const App = () => {
     )
   }
 
+  const handleNameInput = (event) => {
+    const val = event.target.value.replace(/[^a-z]/gi,'').substring(0,5).toUpperCase();
+    
+    dispatch({ 
+      type: 'setNameInput', 
+      payload: val
+    });
+
+    client.name = val;
+    client.emit('NAME', { name: val });
+  }
+
+  const getNameInput = () => {
+    return (
+      <div className="flex-col">
+        <input 
+          className="input" 
+          type="text" 
+          placeholder="PLAYER NAME" 
+          value={state.name || ''} 
+          onChange={handleNameInput} 
+          spellCheck="false" 
+          autoComplete="false" 
+          autoFocus
+        />
+      </div>
+    )
+  }
+
   const getView = () => {
     const backBtn = state.view && <button className="back-btn" onClick={handleBack}> BACK </button>
     switch(state.view) {
@@ -109,6 +138,7 @@ const App = () => {
           <div className="main-screen flex-col flex-fill">
             {backBtn}
             <label className="flex title-label"> XORDLE </label>
+            {getNameInput()}
             <Menu options={CONSTANTS.MENU_OPTIONS} onClick={handleMenuClick}/>
           </div>
         );
@@ -136,6 +166,8 @@ const reducer = (state, action) => {
       return { ...state, view: 'codeInput' }
     case 'setCodeInput':
       return { ...state, room: payload }
+    case 'setNameInput':
+      return { ...state, name: payload }
     default:
       return { ...state };
   }

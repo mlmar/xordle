@@ -101,6 +101,9 @@ button, button:focus {
   }
 }
 
+.back-btn {
+  cursor: pointer;
+}
 
 .float-left, .back-btn {
   position: fixed;
@@ -153,7 +156,6 @@ button, button:focus {
   font-size: 18vw;
   font-weight: 900;
   animation: bounce .6s linear infinite alternate-reverse;
-  margin-bottom: 5vh;
 }
 
 .main-screen > .menu {

@@ -7,6 +7,7 @@ const Game = (props) => {
   const { room, children } = props;
   
   const [gameData, setGameData] = useState(null);
+  const [playerData, setPlayerData] = useState(null);
   const [current, setCurrent] = useState([]);
 
   const isHost = () => gameData?.host === client.id;
@@ -15,16 +16,8 @@ const Game = (props) => {
     client.room = room;
     client.emit('JOIN', { room });
     socketUtil.listen('JOIN', setGameData);
-    socketUtil.listen('UPDATE', (data) => {
-      setGameData(() => {
-        if(data?.status === 1) { // reset current on successful word input
-          setCurrent([]);
-        } else if(data?.status === 0 && data?.turn !== client.id) {
-          setCurrent(data?.current);
-        }
-        return data
-      });
-    });
+    socketUtil.listen('UPDATE', setGameData);
+    socketUtil.listen('PLAYER_UPDATE', setPlayerData);
   }, []);
 
   const handleStartClick = () => {
@@ -38,14 +31,12 @@ const Game = (props) => {
   const handleKeyPress = (letter) => {
     if(letter === 'ENTER') {
       if(current.length === 5) {
-        client.emit('ENTER_WORD');        
-      } else {
-        setCurrent([]);
+        client.emit('ENTER_WORD', { current });        
       }
+      setCurrent([]);
     } else if(letter) {
       setCurrent(prev => {
         const res = prev.length < 5 ? [...prev, letter] : prev;
-        client.emit('SET_CURRENT', { current: res });
         return res;
       });
     } else {
@@ -53,7 +44,6 @@ const Game = (props) => {
         if(prev.length === 0) return [];
         const res = [...prev];
         res.pop();
-        client.emit('SET_CURRENT', { current: res });
         return res;
       });
     }
@@ -61,30 +51,34 @@ const Game = (props) => {
 
   return (
     <div className="flex-col flex-fill game">
-      {!gameData?.inProgress && children}
+      {!gameData?.status > 0 && children}
 
-      { (gameData?.inProgress && !gameData?.turn) &&
+      { gameData?.status === 2 &&
         <div className="flex-col flex-fill game-end">
-          <label className="game-end-label"> Word: </label>
-          <label className="game-end-word"> {gameData?.word} </label>
+          <label className="game-end-word"> WORD: {gameData?.word} </label>
+          { gameData?.winOrder.map((name, i) => {
+              return i < 4 ? <label className="game-end-word" key={i+name}> {i+1}. {name} </label> : null
+            })
+          }
           <button className={!isHost() ? 'hidden' : ''} onClick={handleRestartClick}> RESTART </button>
         </div>
       }
 
-      { gameData?.inProgress && 
+      { gameData?.status > 0 && 
         <GameBoard 
-          keys={gameData?.keys}
-          history={gameData?.history} 
+          keys={playerData?.keys}
+          history={playerData?.history} 
           current={current}
           onKeyPress={handleKeyPress}
-          inProgress={gameData?.turn}
-          timeRemaining={gameData?.timeRemaining}
-          keyboardDisabled={gameData?.turn !== client?.id}
+          inProgress={playerData?.inProgress}
+          timeRemaining={playerData?.timeRemaining}
+          keyboardDisabled={!playerData?.inProgress}
+          name={playerData?.name || client.name}
           room={room}
         /> 
       }
       
-      { !gameData?.inProgress && (
+      { gameData?.status === 0 && (
           <div className="flex-col flex-fill game-lobby">
             <label className="flex room-code"> {gameData?.id} </label>
             <p className="flex-col flex-fill"> {gameData?.playerCount} PLAYER{gameData?.playerCount > 1 ? 'S' : ''} </p>
