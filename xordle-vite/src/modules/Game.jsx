@@ -22,8 +22,8 @@ const Game = (props) => {
         if(prev?.history?.length < playerData?.history?.length) {
           setCurrent([]);
         }
+        return playerData;
       });
-      return playerData;
     });
   }, []);
 
