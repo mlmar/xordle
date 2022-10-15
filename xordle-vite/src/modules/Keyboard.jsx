@@ -39,7 +39,7 @@ const Keyboard = (props) => {
 const Key = ({ letter, status, className, id }) => {
   let keyStyle = ['flex keyboard-key', getClassNameByStatus(status), (className || '')].join(' ');
   return (
-    <span className="flex keyboard-key-container">
+    <span className="flex keyboard-key-container" id={id}>
       <button className={keyStyle} id={id}> {letter} </button>
     </span>
   )
