@@ -88,7 +88,7 @@ const Progress = ({ className, progress }) => {
 }
 
 const Letter = ({ letter, status, delay }) => {
-  const [bgClass, setBgClass] = useState('bg-placeholder');
+  const [bgClass, setBgClass] = useState('bg-placeholder active');
   
   useEffect(() => {
     if(delay) {

@@ -17,14 +17,14 @@ const Game = (props) => {
     client.emit('JOIN', { room });
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', setGameData);
-    socketUtil.listen('PLAYER_UPDATE', (data) => {
-      if(data?.correct === false || data?.correct === true) {
-        console.log(data?.correct);
-        setCurrent([])
-      }
-      setPlayerData(data);
-    });
+    socketUtil.listen('PLAYER_UPDATE', setPlayerData);
   }, []);
+
+  useEffect(() => {
+    if(playerData?.correct === false || playerData?.correct === true) {
+      setCurrent([]);
+    }
+  }, [playerData])
 
   const handleStartClick = () => {
     if(isHost()) client.emit('START');

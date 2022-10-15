@@ -4,6 +4,10 @@
   justify-content: center;
 }
 
+.keyboard-key-container {
+  padding: .17rem;
+}
+
 .keyboard-key {
   font-size: 1.1rem;
   font-weight: 600;
@@ -12,7 +16,6 @@
   width: 1.9rem;
   height: 3rem;
   user-select: none;
-  margin: .17rem;
   border-radius: .2rem;
   user-select: none;
   color: white;
