@@ -17,7 +17,12 @@ const Game = (props) => {
     client.emit('JOIN', { room });
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', setGameData);
-    socketUtil.listen('PLAYER_UPDATE', setPlayerData);
+    socketUtil.listen('PLAYER_UPDATE', (playerData) => {
+      if(playerData?.history[playerData?.history?.length - 1] === this.current.join('')) {
+        setCurrent([])
+      }
+      setPlayerData(playerData);
+    });
   }, []);
 
   const handleStartClick = () => {
@@ -33,7 +38,6 @@ const Game = (props) => {
       if(current.length === 5) {
         client.emit('ENTER_WORD', { current });        
       }
-      setCurrent([])
     } else if(letter) {
       setCurrent(prev => {
         const res = prev.length < 5 ? [...prev, letter] : prev;
