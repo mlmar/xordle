@@ -18,7 +18,7 @@ const Game = (props) => {
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', setGameData);
     socketUtil.listen('PLAYER_UPDATE', (playerData) => {
-      if(playerData?.history[playerData?.history?.length - 1] === this.current.join('')) {
+      if(playerData?.history[playerData?.history?.length - 1] === current.join('')) {
         setCurrent([])
       }
       setPlayerData(playerData);
