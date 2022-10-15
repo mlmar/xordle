@@ -19,7 +19,7 @@ const Game = (props) => {
     socketUtil.listen('UPDATE', setGameData);
     socketUtil.listen('PLAYER_UPDATE', (playerData) => {
       setPlayerData((prev) => {
-        if(prev.history.length < playerData.history.length) {
+        if(prev?.history?.length < playerData?.history?.length) {
           setCurrent([]);
         }
       });
