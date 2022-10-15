@@ -9,7 +9,6 @@ const Keyboard = (props) => {
   
   const handleClick = (event) => {
     if(disabled) return;
-    event.preventDefault()
     if(event.target.id) {
       if(onClick) onClick({ key: event.target.id });
     }
@@ -26,8 +25,10 @@ const Keyboard = (props) => {
     )
   }
 
+  const pvd = (e) => e.preventDefault();
+
   return (
-    <div className={"keyboard flex-col " + (disabled ? 'disabled' : '')} onTouchEnd={handleClick} onMouseUp={handleClick}>
+    <div className={"keyboard flex-col " + (disabled ? 'disabled' : '')} onTouchEnd={pvd} onTouchStart={handleClick} onMouseUp={handleClick}>
       {constructRow(0)}
       {constructRow(1)}
       {constructRow(2, <Key letter={'ENTER'} status={3} id="enter"/>, <Key letter={<>&#171;</>} status={3} id="backspace"/>)}
