@@ -5,7 +5,7 @@ import { getClassNameByStatus, getClassNameByProgress, isValidLetter } from '../
 import Keyboard from './Keyboard';
 
 const GameBoard = (props) => {
-  const { keys, history, inProgress, timeRemaining, keyboardDisabled, onKeyPress, current, room, name } = props;
+  const { keys, history, inProgress, timeRemaining, keyboardDisabled, onKeyPress, current, room, name, message } = props;
   const gameBoardRef = useRef(null);
   const lastWordRef = useRef(null);
 
@@ -60,7 +60,7 @@ const GameBoard = (props) => {
 
   return (
     <div className="game-board flex-col flex-fill " onKeyDown={handleKeyDown} tabIndex="0" ref={gameBoardRef}>
-      <label className="floating-purple-text float-left"> {name} </label>
+      <label className="floating-purple-text float-left"> {message} </label>
       <label className="floating-purple-text float-right"> {room} </label>
       <div className="flex-col flex-fill overflow game-board-list">
         {getHistory()}
@@ -89,12 +89,15 @@ const Progress = ({ className, progress }) => {
 
 const Letter = ({ letter, status, delay }) => {
   const [bgClass, setBgClass] = useState('bg-placeholder active');
+  const timeOutref = useRef(null);
   
   useEffect(() => {
     if(delay) {
-      setTimeout(() => {
+      timeOutref.current = setTimeout(() => {
         setBgClass(getClassNameByStatus(status))
       }, delay)
+
+      return () => clearTimeout(timeOutref.current);
     }
   }, [status, delay])
   

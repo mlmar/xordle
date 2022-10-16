@@ -9,9 +9,13 @@ const Keyboard = (props) => {
   
   const handleClick = (event) => {
     if(disabled) return;
-    if(event.target.id) {
-      if(onClick) onClick({ key: event.target.id });
-    }
+    if(event.touches?.length) {
+      for(let touch of event.touches) {
+        if(touch?.target?.id && onClick) onClick({ key: touch.target.id });
+      }
+    } else {
+        if(event.target.id && onClick) onClick({ key: event.target.id });
+      }
   }
 
   const constructRow = (index, prepend, append) => {

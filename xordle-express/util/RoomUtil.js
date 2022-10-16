@@ -17,6 +17,7 @@ class Room {
 
     this.status = 0;
     this.paused = false;
+    this.message = null;
   }
 
   getData() {
@@ -26,7 +27,8 @@ class Room {
       playerCount: this.users.size,
       status: this.status,
       word: this.status === 2 ? this.word : null,
-      winOrder: this.winOrder
+      winOrder: this.winOrder,
+      message: this.message
     }
   }
 
@@ -82,6 +84,7 @@ class Room {
     const correct = this.players.get(id)?.enterWord(currentWord, this.word);
     if(correct) {
       this.winOrder.push(this.players.get(id).getName());
+      this.message = '#' + this.winOrder.length + ' - ' + this.players.get(id).getName();
     }
 
     if(this.winOrder.length < this.users.size) {
@@ -127,6 +130,7 @@ class Room {
     this.status = 1;
     this.paused = false;
     this.winOrder = [];
+    this.message = null;
     // this.word = 'SPACE';
     console.log('WORD:', this.word);
   }
@@ -139,6 +143,7 @@ class Room {
     this.status = 0;
     this.paused = false;
     this.winOrder = [];
+    this.message = null;
   }
 
 }

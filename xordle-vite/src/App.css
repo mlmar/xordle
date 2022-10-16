@@ -61,7 +61,9 @@ button, button:focus {
   scroll-behavior: smooth;
 }
 
-
+.underline {
+  text-decoration: underline;
+}
 
 .bg-gray {
   background: var(--gray);
@@ -116,6 +118,13 @@ button, button:focus {
   position: fixed;
   top: 1rem;
   right: 1rem;
+  z-index: 99;
+}
+
+.float-center {
+  position: fixed;
+  top: 1rem;
+  align-self: center;
   z-index: 99;
 }
 

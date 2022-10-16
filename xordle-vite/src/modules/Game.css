@@ -26,7 +26,7 @@
 }
 
 .game-end-word {
-  color: var(--green);
+  color: var(--purple);
   font-weight: 800;
   font-size: 2rem;
   margin-bottom: 1rem;
