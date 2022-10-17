@@ -10,12 +10,11 @@ const Keyboard = (props) => {
   const handleClick = (event) => {
     if(disabled) return;
     if(event.touches?.length) {
-      for(let touch of event.touches) {
-        if(touch?.target?.id && onClick) onClick({ key: touch.target.id });
-      }
+      let touch = event.touches.map(touch => touch).at(-1);
+      if(touch?.target?.id && onClick) onClick({ key: touch.target.id });
     } else {
-        if(event.target.id && onClick) onClick({ key: event.target.id });
-      }
+      if(event.target.id && onClick) onClick({ key: event.target.id });
+    }
   }
 
   const constructRow = (index, prepend, append) => {
