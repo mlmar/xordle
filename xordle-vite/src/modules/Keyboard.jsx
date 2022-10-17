@@ -10,7 +10,8 @@ const Keyboard = (props) => {
   const handleClick = (event) => {
     if(disabled) return;
     if(event.touches?.length) {
-      let touch = event.touches.map(touch => touch).at(-1);
+      let touch = event.touches.map(touch => touch);
+      touch = touch[touch.length - 1];
       if(touch?.target?.id && onClick) onClick({ key: touch.target.id });
     } else {
       if(event.target.id && onClick) onClick({ key: event.target.id });
