@@ -215,9 +215,6 @@ class Room {
     this.inProgress = true;
     this.players.forEach(player => {
       player?.start();
-      if(this.settings['CHAIN'] && this.word) {
-        player?.setHistory([this.word]);
-      }
     });
     this.word = WordUtil.getRandomWord();
     this.status = 1;
@@ -225,6 +222,14 @@ class Room {
     this.winOrder = [];
     this.message = '';
     this.resetCountdown();
+
+    if(this.settings['CHAIN'] && this.word) {
+      const oldWord = this.word;
+      this.players.forEach(player => {
+        player?.enterWord(oldWord, this.word);
+      });
+    }
+
     // this.word = 'SPACE';
     console.log('WORD:', this.word);
   }
