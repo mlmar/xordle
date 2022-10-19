@@ -167,7 +167,7 @@ listen('START', (socket) => {
   broadcast([...roomObj.getActiveUsers()], 'SETTINGS_UPDATE', roomObj.getSettings());
   roomObj.getActiveUsers().forEach(id => {
     to(CLIENTS.get(id), 'SERVER_UPDATE', {
-      player: roomObj.getDefaultPlayerData(id),
+      player: roomObj.getPlayerData(id),
       room: roomObj.getData()
     });
   });

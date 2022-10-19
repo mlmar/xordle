@@ -21,6 +21,7 @@ class Room {
     this.inactivePlayers = new Map();
 
     this.interval = null;
+    this.prevWord = '';
     this.word = '';
     this.winOrder = [];
 
@@ -137,7 +138,8 @@ class Room {
     if(correct) {
       this.winOrder.push({
         id: id,
-        name: this.players.get(id).getName()
+        name: this.players.get(id).getName(),
+        attempts: this.players.get(id).history.length
       });
       this.message = '#' + this.winOrder.length + ' - ' + this.players.get(id)?.getName();
     }
@@ -216,6 +218,7 @@ class Room {
     this.players.forEach(player => {
       player?.start();
     });
+
     this.word = WordUtil.getRandomWord();
     this.status = 1;
     this.paused = false;
@@ -223,10 +226,10 @@ class Room {
     this.message = '';
     this.resetCountdown();
 
-    if(this.settings['CHAIN'] && this.word) {
-      const oldWord = this.word;
+    if(this.settings['CHAIN'] && this.prevWord.length) {
+      console.log('PREV:',this.prevWord);
       this.players.forEach(player => {
-        player?.enterWord(oldWord, this.word);
+        player?.enterWord(this.prevWord.split(''), this.word);
       });
     }
 
@@ -236,9 +239,9 @@ class Room {
   
   end() {
     this.turn = null;
-    this.word = [];
     this.players.forEach(player => player?.reset());
     this.inactivePlayers.forEach(player => player?.reset());
+    this.prevWord = this.word;
     this.word = '';
     this.status = 0;
     this.paused = false;

@@ -96,8 +96,9 @@ const Game = (props) => {
       { gameData?.status === 2 &&
         <div className="flex-col flex-fill game-end">
           <label className="game-end-word underline"> {gameData?.word} </label>
-          { gameData?.winOrder.map(({ name }, i) => {
-              return i < 4 ? <label className="game-end-word" key={i+name}> #{i+1} - {name} </label> : null
+          { gameData?.winOrder.map(({ name, attempts }, i) => {
+              const tryStr = attempts > 0 ? 'TRIES' : 'TRY';
+              return i < 4 ? <label className="game-end-word" key={i+name}> #{i+1} - {name} ({attempts} {tryStr})</label> : null
             })
           }
           <button className={!isHost() ? 'hidden' : ''} onClick={handleRestartClick}> RESTART </button>
