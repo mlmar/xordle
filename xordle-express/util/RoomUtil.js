@@ -7,6 +7,7 @@ const SETTINGS = {
   'STOP AT FIRST WINNER': false,
   'GUESS TIMER': true,
   'GAME TIMER': true,
+  'CHAIN': false
 }
 
 const TIME_LIMIT = 120;
@@ -212,7 +213,12 @@ class Room {
   start() {
     if(this.status > 0) return;
     this.inProgress = true;
-    this.players.forEach(player => player?.start());
+    this.players.forEach(player => {
+      player?.start();
+      if(this.settings['CHAIN'] && this.word) {
+        player?.setHistory([this.word]);
+      }
+    });
     this.word = WordUtil.getRandomWord();
     this.status = 1;
     this.paused = false;

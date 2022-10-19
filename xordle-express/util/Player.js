@@ -78,6 +78,11 @@ class Player {
     return this.historySet.has(currentWordString);
   }
 
+  setHistory(history) {
+    this.history = history;
+    this.hsitorySet = new Set(history);
+  }
+
   enterWord(currentWord, correctWord) {
     const currentWordString = currentWord.join('');
     const found = WordUtil.findWord(currentWordString);
