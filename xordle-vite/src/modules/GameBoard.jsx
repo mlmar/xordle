@@ -5,7 +5,20 @@ import { getClassNameByStatus, getClassNameByProgress, isValidLetter } from '../
 import Keyboard from './Keyboard';
 
 const GameBoard = (props) => {
-  const { keys, history, inProgress, timeRemaining, keyboardDisabled, onKeyPress, current, room, name, message } = props;
+  const { 
+    keys,
+    history,
+    inProgress,
+    timeRemaining,
+    showTimeRemaining,
+    keyboardDisabled,
+    onKeyPress,
+    current,
+    room,
+    name,
+    message 
+  } = props;
+
   const gameBoardRef = useRef(null);
   const lastWordRef = useRef(null);
 
@@ -68,7 +81,7 @@ const GameBoard = (props) => {
           {inProgress && getCurrent()}
         </div>
       </div>
-      <Progress className="game-board-progress" progress={timeRemaining}/>
+      {showTimeRemaining && <Progress className="game-board-progress" progress={timeRemaining}/>}
       <Keyboard keys={keys} disabled={keyboardDisabled} onClick={handleKeyDown}/>
     </div>
   )

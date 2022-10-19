@@ -96,7 +96,7 @@ const App = () => {
     });
 
     client.name = val;
-    client.emit('NAME', { name: val });
+    client.setName(val);
   }
 
   const getNameInput = () => {
@@ -176,6 +176,7 @@ const reducer = (state, action) => {
 const initialState = {
   view: CONSTANTS.VIEW,
   room: null,
+  name: localStorage.getItem('xordle_name')
 }
 
 

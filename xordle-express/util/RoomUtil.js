@@ -1,8 +1,15 @@
 const WordUtil = require('./WordUtil.js');
-const Player = require('./PlayerUtil.js');
+const Player = require('./Player.js');
 
 const ROOMS = new Map();
 const ROOM_TIMEOUTS = new Map();
+const SETTINGS = {
+  'STOP AT FIRST WINNER': false,
+  'GUESS TIMER': true,
+  'GAME TIMER': true,
+}
+
+const TIME_LIMIT = 120;
 
 class Room {
   constructor(id, host, hostName) {
@@ -10,14 +17,19 @@ class Room {
     this.host = host;
     this.users = new Set([host]);
     this.players = new Map().set(host, new Player(host, generateName(this.users, hostName)));
-    
+    this.inactivePlayers = new Map();
+
     this.interval = null;
     this.word = '';
     this.winOrder = [];
 
     this.status = 0;
     this.paused = false;
-    this.message = null;
+    this.message = '';
+    
+    this.countdown = TIME_LIMIT;
+
+    this.settings = SETTINGS;
   }
 
   getData() {
@@ -28,8 +40,20 @@ class Room {
       status: this.status,
       word: this.status === 2 ? this.word : null,
       winOrder: this.winOrder,
-      message: this.message
+      message: this.message,
+      timeRemaining: this.countdown
     }
+  }
+  
+  getSettings() {
+    return this.settings;
+  }
+
+  setSettings(id, settings) {
+    if(this.host === id) {
+      this.settings = { ...this.settings, ...settings };
+    }
+    return this.settings;
   }
 
   getPlayerData(id) {
@@ -50,7 +74,11 @@ class Room {
 
   addUser(user, name) {
     this.users.add(user);
-    this.players.set(user, this.players.get(user) || new Player(user, generateName(this.users, name)));
+    this.players.set(user, this.inactivePlayers.get(user) || new Player(user, generateName(this.users, name)));
+    this.inactivePlayers.delete(user);
+    if(this.inProgress) {
+      this.players.get(user).start();
+    }
     const roomTimeout = ROOM_TIMEOUTS.get(this.id);
     if(roomTimeout) {
       clearTimeout(roomTimeout);
@@ -64,6 +92,9 @@ class Room {
   removeUser(user) {
     this.users.delete(user);
 
+    this.inactivePlayers.set(user, this.players.get(user));
+    this.players.delete(user);
+
     if(this.host === user && this.users.size > 0) {
       this.host = Array.from(this.users)[0];
       console.log('PROCESS: Picking', `[${this.host}]`, 'as new host for', `[${this.id}]`);
@@ -72,8 +103,28 @@ class Room {
     return this.users;
   }
 
+  refreshUser(previousID, currentID) {
+    const player = this.inactivePlayers.get(previousID);
+    if(player) {
+      player.setID(currentID);
+      this.inactivePlayers.set(currentID, player);
+      this.inactivePlayers.delete(previousID);
+
+      this.winOrder = this.winOrder.map((item) => {
+        return {
+          id: item.id.replace(previousID, currentID),
+          ...item
+        }
+      })
+    }
+  }
+
   getUsers() {
     return Array.from(this.users);
+  }
+
+  getActiveUsers() {
+    return Array.from(this.users).filter((user) => this.players.get(user));
   }
 
   setWord(word) {
@@ -83,20 +134,56 @@ class Room {
   enterWord(id, currentWord) {
     const correct = this.players.get(id)?.enterWord(currentWord, this.word);
     if(correct) {
-      this.winOrder.push(this.players.get(id).getName());
-      this.message = '#' + this.winOrder.length + ' - ' + this.players.get(id).getName();
+      this.winOrder.push({
+        id: id,
+        name: this.players.get(id).getName()
+      });
+      this.message = '#' + this.winOrder.length + ' - ' + this.players.get(id)?.getName();
     }
 
-    if(this.winOrder.length < this.users.size) {
-      this.status = 1;
-    } else {
+    if(this.settings['STOP AT FIRST WINNER'] && correct) {
       this.status = 2;
+    } else {
+      if(this.winOrder.length < this.players.size) {
+        this.status = 1;
+      } else {
+        this.status = 2;
+      }
     }
+
     return correct;
   }
 
   decrementCountdown() {
-    this.players.forEach(player => player.setCountdown(c => c - 1));
+    if(this.status === 1) {
+      if(this.settings['GUESS TIMER']) {
+        this.players.forEach(player => player.setCountdown(c => c - 1));
+      }
+      if(this.settings['GAME TIMER']) {
+        this.setCountdown(c => c - 1);
+      }
+    }
+  }
+
+  setCountdown(numArg) {
+    if(!this.inProgress) {
+      return;
+    }
+
+    if(typeof numArg === 'function') {
+      const res = numArg(this.countdown)
+      this.countdown = res > 0 ? res : 0;
+    } else {
+      this.countdown = numArg;
+    }
+
+    if(this.countdown === 0) {
+      this.status = 2;
+    }
+  }
+
+  resetCountdown() {
+    this.countdown = TIME_LIMIT;
   }
 
   startInterval(callback, time) {
@@ -130,7 +217,8 @@ class Room {
     this.status = 1;
     this.paused = false;
     this.winOrder = [];
-    this.message = null;
+    this.message = '';
+    this.resetCountdown();
     // this.word = 'SPACE';
     console.log('WORD:', this.word);
   }
@@ -139,11 +227,13 @@ class Room {
     this.turn = null;
     this.word = [];
     this.players.forEach(player => player?.reset());
+    this.inactivePlayers.forEach(player => player?.reset());
     this.word = '';
     this.status = 0;
     this.paused = false;
     this.winOrder = [];
-    this.message = null;
+    this.message = '';
+    this.resetCountdown();
   }
 
 }

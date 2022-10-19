@@ -15,6 +15,10 @@ class Player {
     this.timeRemaining = 0;
   }
 
+  setID(id) {
+    this.id = id;
+  }
+
   getName() {
     return this.name
   }
@@ -164,6 +168,7 @@ class Player {
   }
 
   start() {
+    if(this.inProgress) return;
     this.reset();
     this.inProgress = true;
     this.timeRemaining = TIME_LIMIT;

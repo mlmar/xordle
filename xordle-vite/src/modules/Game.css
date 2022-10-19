@@ -79,3 +79,20 @@
   animation: pulse .6s linear infinite alternate-reverse;
   margin: 2rem;
 }
+
+.settings-panel {
+  padding: 1rem;
+  color: var(--purple);
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.settings-panel input[type="checkbox"] {
+  height: 2rem;
+  width: 2rem;
+  margin-right: 1rem;
+}
+
+.settings-panel > * {
+  margin-bottom: 1.2rem;
+}

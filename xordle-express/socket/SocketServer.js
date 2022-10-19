@@ -75,8 +75,9 @@ const handleJoin = (socket, payload) => {
   socket.room = room;
   roomObj.addUser(socket.id, socket.name);
   roomUtil.print();
-  console.log('STATUS: Client', `[${socket.id}]`, 'joined room', `[${payload.room}]`)
-  broadcast([...roomObj.getUsers()], 'JOIN', roomObj.getData());
+  console.log('STATUS: Client', `[${socket.id}]`, 'joined room', `[${payload.room}]`);
+  to(socket, 'SETTINGS_UPDATE', roomObj.getSettings());
+  broadcast([...roomObj.getActiveUsers()], 'JOIN', roomObj.getData());
   return true;
 }
 
@@ -90,7 +91,7 @@ const handleLeave = (socket) => {
     roomUtil.remove(room);
     console.log('PROCESS: Starting room timeout for', `[${room}]`);
   } else {
-    broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+    broadcast([...roomObj.getActiveUsers()], 'UPDATE', roomObj.getData());
   }
 }
 
@@ -102,7 +103,7 @@ listen('PING', (socket) => {
   to(socket, 'PING');
 });
 
-listen('NAME', (socket, payload) => {
+listen('SET_NAME', (socket, payload) => {
   socket.name = payload.name;
   console.log('NAME: Setting name for socket',`[${socket.id}]`, 'to', payload.name);
 });
@@ -111,16 +112,21 @@ listen('RECONNECT', (socket, payload) => {
   const { previousID } = payload;
   console.log('RECONNECT: Socket',`[${previousID}]`,'attempting to connect');
   const room = DISCONNECTED_CLIENTS.get(previousID);
-  const success = handleJoin(socket, { room })
   DISCONNECTED_CLIENTS.delete(previousID);
+
+  const roomObj = roomUtil.get(room);
+  if(roomObj) {
+    roomObj.refreshUser(previousID, socket.id);
+  }
   
-  to(socket, 'RECONNECT', success);
+  to(socket, 'RECONNECT', room);
 });
 
 listen('CREATE', (socket) => {
   const room = roomUtil.create(socket.id, socket.name);
   socket.room = room;
   to(socket, 'CREATE', room);
+  to(socket, 'SETTINGS_UPDATE', roomUtil.get(room).getSettings());
   console.log('PROCESS: Creating room',`[${room}]`);
 });
 
@@ -146,18 +152,25 @@ listen('START', (socket) => {
   if(!roomObj || socket.id !== roomObj?.host) return;
   roomObj.start()
 
-  if(roomObj.getUsers().length) { // delegate this code to util later on
+  if(roomObj.getActiveUsers().length) { // delegate this code to util later on
     roomObj.startInterval(() => {
       roomObj.decrementCountdown();
-      roomObj.getUsers().forEach(id => {
-        to(CLIENTS.get(id), 'PLAYER_UPDATE', roomObj.getPlayerData(id));
-      })
-      broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+      roomObj.getActiveUsers().forEach(id => {
+        to(CLIENTS.get(id), 'SERVER_UPDATE', {
+          player: roomObj.getPlayerData(id),
+          room: roomObj.getData()
+        });
+      });
     }, 1000);
   }
 
-  broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
-  broadcast([...roomObj.getUsers()], 'PLAYER_UPDATE', roomObj.getDefaultPlayerData());
+  broadcast([...roomObj.getActiveUsers()], 'SETTINGS_UPDATE', roomObj.getSettings());
+  roomObj.getActiveUsers().forEach(id => {
+    to(CLIENTS.get(id), 'SERVER_UPDATE', {
+      player: roomObj.getDefaultPlayerData(id),
+      room: roomObj.getData()
+    });
+  });
 });
 
 listen('END', (socket) => {
@@ -166,15 +179,27 @@ listen('END', (socket) => {
   if(!roomObj || socket.id !== roomObj?.host) return;
   roomObj.end();
   roomObj.stopInterval();
-  broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+  broadcast([...roomObj.getActiveUsers()], 'UPDATE', roomObj.getData());
 })
+
+listen('SETTINGS_UPDATE', (socket, payload) => {
+  const { room } = socket;
+  const roomObj = roomUtil.get(room);
+  if(!roomObj) return;
+  const { settings } = payload;
+  if(settings) {
+    console.log('SETTINGS: Setting settings for room',`[${room}]`);
+    const newSettings = roomObj.setSettings(socket.id, settings);
+    broadcast([...roomObj.getActiveUsers()], 'SETTINGS_UPDATE', newSettings);
+  }
+});
 
 listen('ENTER_WORD', (socket, payload) => {
   const { room } = socket;
   const roomObj = roomUtil.get(room);
   if(!roomObj) return;
   const correct = roomObj.enterWord(socket.id, payload.current);
-  broadcast([...roomObj.getUsers()], 'UPDATE', roomObj.getData());
+  broadcast([...roomObj.getActiveUsers()], 'UPDATE', roomObj.getData());
   to(socket, 'PLAYER_UPDATE', { ...roomObj.getPlayerData(socket.id), correct });
 });
 

@@ -9,8 +9,15 @@ const Game = (props) => {
   const [gameData, setGameData] = useState(null);
   const [playerData, setPlayerData] = useState(null);
   const [current, setCurrent] = useState([]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [settings, setSettings] = useState(null);
 
   const isHost = () => gameData?.host === client.id;
+
+  const setServerData = (serverData) => {
+    setGameData(serverData.room);
+    setPlayerData(serverData.player);
+  }
 
   useEffect(() => {
     client.room = room;
@@ -18,6 +25,8 @@ const Game = (props) => {
     socketUtil.listen('JOIN', setGameData);
     socketUtil.listen('UPDATE', setGameData);
     socketUtil.listen('PLAYER_UPDATE', setPlayerData);
+    socketUtil.listen('SERVER_UPDATE', setServerData);
+    socketUtil.listen('SETTINGS_UPDATE', setSettings);
   }, []);
 
   useEffect(() => {
@@ -25,6 +34,31 @@ const Game = (props) => {
       setCurrent([]);
     }
   }, [playerData])
+
+  const handleShowSettingsClick = () => {
+    setShowSettings(prev => !prev);
+  }
+
+  const handleCheckboxChange = (event) => {
+    const newSettings = { ...settings, [event.target.id]: event.target.checked };
+    client.emit('SETTINGS_UPDATE', { settings: newSettings} );
+  }
+
+  const getSettingsPanel = () => {
+    return (
+      <div className="flex flex-col flex-fill settings-panel">
+        <button className="back-btn" onClick={handleShowSettingsClick}> BACK </button>
+        { settings && Object.keys(settings).map((setting) => {
+          return (
+            <div className="flex flex-middle" key={setting}>
+              <input type="checkbox" className="flex" checked={settings[setting]} id={setting} onChange={handleCheckboxChange}/> 
+              <label className="flex flex-middle" htmlFor={setting}> {setting} </label>
+            </div>
+            )
+        })}
+      </div>
+    )
+  }
 
   const handleStartClick = () => {
     if(isHost()) client.emit('START');
@@ -57,12 +91,12 @@ const Game = (props) => {
 
   return (
     <div className="flex-col flex-fill game">
-      {!gameData?.status > 0 && children}
+      {(!gameData?.status > 0 && !showSettings) && children}
 
       { gameData?.status === 2 &&
         <div className="flex-col flex-fill game-end">
           <label className="game-end-word underline"> {gameData?.word} </label>
-          { gameData?.winOrder.map((name, i) => {
+          { gameData?.winOrder.map(({ name }, i) => {
               return i < 4 ? <label className="game-end-word" key={i+name}> #{i+1} - {name} </label> : null
             })
           }
@@ -78,20 +112,28 @@ const Game = (props) => {
           onKeyPress={handleKeyPress}
           inProgress={playerData?.inProgress}
           timeRemaining={playerData?.timeRemaining}
+          showTimeRemaining={settings?.['GUESS TIMER']}
           keyboardDisabled={!playerData?.inProgress}
           name={playerData?.name || client.name}
           room={room}
-          message={gameData?.message}
+          message={'[' + gameData?.timeRemaining + '] ' + gameData?.message}
         /> 
       }
       
       { gameData?.status === 0 && (
           <div className="flex-col flex-fill game-lobby">
+            <button className="flex floating-purple-text float-right" onClick={handleShowSettingsClick}> SETTINGS </button>
             <label className="flex room-code"> {gameData?.id} </label>
-            <p className="flex-col flex-fill"> {gameData?.playerCount} PLAYER{gameData?.playerCount > 1 ? 'S' : ''} </p>
-            <button className="start-btn" onClick={handleStartClick}> 
-              {isHost() ? 'START' : 'WAITING FOR HOST'} 
-            </button>
+            { !showSettings ?
+              <>
+                <p className="flex-col flex-fill"> {gameData?.playerCount} PLAYER{gameData?.playerCount > 1 ? 'S' : ''} </p>
+                <button className="start-btn" onClick={handleStartClick}> 
+                  {isHost() ? 'START' : 'WAITING FOR HOST'} 
+                </button>
+              </>
+              :
+              getSettingsPanel()
+            }
           </div>
         )
       }

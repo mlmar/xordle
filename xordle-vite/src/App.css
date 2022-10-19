@@ -51,6 +51,12 @@ button, button:focus {
 .flex-fill {
   flex: 1 1;
 }
+.flex-middle {
+  align-items: center;
+}
+.flex-center {
+  justify-content: center;
+}
 
 .hidden {
   opacity: 0;
