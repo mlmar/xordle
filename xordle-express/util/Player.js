@@ -13,6 +13,7 @@ class Player {
     this.inProgress = false;
     this.countdown = 0;
     this.timeRemaining = 0;
+    this.attempts = 0;
   }
 
   setID(id) {
@@ -31,11 +32,16 @@ class Player {
       history: this.history,
       inProgress: this.inProgress,
       timeRemaining: this.timeRemaining,
+      attempts: this.attempts
     }
   }
 
   getID() {
     return this.id;
+  }
+
+  setInProgress(inProgress) {
+    this.inProgress = inProgress;
   }
 
   // https://codereview.stackexchange.com/questions/274301/wordle-color-algorithm-in-javascript
@@ -89,6 +95,8 @@ class Player {
       return false;
     }
 
+    this.attempts++;
+
     const currentWordStatus = currentWord.map((letter, i) => {
       const status = this.getWordStatus(i, currentWord, correctWord);
       this.keys[letter] = this.keys[letter] ? Math.min(this.keys[letter], status) : status;
@@ -128,6 +136,10 @@ class Player {
     });
   }
 
+  getAttempts() {
+    return this.attempts;
+  }
+
   calculateProgress() {
     this.timeRemaining = this.countdown / TIME_LIMIT;
     return this.timeRemaining;
@@ -165,6 +177,7 @@ class Player {
     this.inProgress = false;
     this.timeRemaining = 0;
     this.countdown = 0;
+    this.attempts = 0;
   }
 
   start() {

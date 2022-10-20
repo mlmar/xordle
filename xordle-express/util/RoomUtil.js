@@ -3,14 +3,25 @@ const Player = require('./Player.js');
 
 const ROOMS = new Map();
 const ROOM_TIMEOUTS = new Map();
+const TIME_TO_REMOVE = 60000;
+
+const SETTINGS_IDS = {
+  STOP_AT_FIRST_WINNER: 'STOP AT FIRST WINNER',
+  GUESS_TIMER: 'GUESS TIMER',
+  GAME_TIMER: 'GAME TIMER',
+  SIX_ATTEMPTS: 'SIX ATTEMPTS',
+  CHAIN: 'CHAIN',
+}
 const SETTINGS = {
-  'STOP AT FIRST WINNER': false,
-  'GUESS TIMER': true,
-  'GAME TIMER': true,
-  'CHAIN': false
+  [SETTINGS_IDS.STOP_AT_FIRST_WINNER]: false,
+  [SETTINGS_IDS.GUESS_TIMER]: true,
+  [SETTINGS_IDS.GAME_TIMER]: true,
+  [SETTINGS_IDS.SIX_ATTEMPTS]: false,
+  [SETTINGS_IDS.CHAIN]: false,
 }
 
 const TIME_LIMIT = 120;
+const MAX_ATTEMPTS = 6;
 
 class Room {
   constructor(id, host, hostName) {
@@ -30,6 +41,7 @@ class Room {
     this.message = '';
     
     this.countdown = TIME_LIMIT;
+    this.maxAttempts = MAX_ATTEMPTS;
 
     this.settings = SETTINGS;
   }
@@ -134,19 +146,34 @@ class Room {
   }
 
   enterWord(id, currentWord) {
-    const correct = this.players.get(id)?.enterWord(currentWord, this.word);
+    const player = this.players.get(id);
+    if(!player) {
+      return;
+    }
+
+    const correct = player.enterWord(currentWord, this.word);
     if(correct) {
       this.winOrder.push({
         id: id,
-        name: this.players.get(id).getName(),
-        attempts: this.players.get(id).history.length
+        name: player.getName(),
+        attempts: player.getAttempts()
       });
-      this.message = '#' + this.winOrder.length + ' - ' + this.players.get(id)?.getName();
+      this.message = '#' + this.winOrder.length + ' - ' + player.getName();
+    } else {
+      if(this.settings[SETTINGS_IDS.SIX_ATTEMPTS] && player.getAttempts() >= this.maxAttempts) {
+        player.setInProgress(false);
+      }
     }
 
-    if(this.settings['STOP AT FIRST WINNER'] && correct) {
+
+    if(this.settings[SETTINGS_IDS.STOP_AT_FIRST_WINNER] && correct) {
       this.status = 2;
-    } else {
+    } else if(this.settings[SETTINGS_IDS.SIX_ATTEMPTS]) {
+      const inProgress = this.checkIfPlayersInProgress();
+      if(!inProgress) {
+        this.status = 2;
+      }
+    }else {
       if(this.winOrder.length < this.players.size) {
         this.status = 1;
       } else {
@@ -157,12 +184,22 @@ class Room {
     return correct;
   }
 
+  checkIfPlayersInProgress() {
+    let inProgress = false;
+    this.players.forEach(player => {
+      if(player.inProgress) {
+        inProgress = true;
+      }
+    })
+    return inProgress;
+  }
+
   decrementCountdown() {
     if(this.status === 1) {
-      if(this.settings['GUESS TIMER']) {
+      if(this.settings[SETTINGS_IDS.GUESS_TIMER]) {
         this.players.forEach(player => player.setCountdown(c => c - 1));
       }
-      if(this.settings['GAME TIMER']) {
+      if(this.settings[SETTINGS_IDS.GAME_TIMER]) {
         this.setCountdown(c => c - 1);
       }
     }
@@ -226,7 +263,7 @@ class Room {
     this.message = '';
     this.resetCountdown();
 
-    if(this.settings['CHAIN'] && this.prevWord.length) {
+    if(this.settings[SETTINGS_IDS.CHAIN] && this.prevWord.length) {
       console.log('PREV:',this.prevWord);
       this.players.forEach(player => {
         player?.enterWord(this.prevWord.split(''), this.word);
@@ -275,7 +312,7 @@ const remove = (room) => {
     ROOMS.delete(room);
     ROOM_TIMEOUTS.delete(room);
     console.log('PROCESS: Deleting room', `[${room}]`);
-  }, 60000));
+  }, TIME_TO_REMOVE));
 }
 
 const get = (room) => {
