@@ -22,11 +22,14 @@ const App = () => {
 
     socketUtil.listen('VERIFY', (room) => {
       sending.current = false;
-      if(!room) return;
-      dispatch({ 
-        type: 'viewJoin',
-        payload: { room: room }
-      });
+      if(!room) {
+        dispatch({  type: 'viewMain' });
+      } else {
+        dispatch({ 
+          type: 'viewJoin',
+          payload: { room: room }
+        });
+      };
     });
 
     socketUtil.listen('RECONNECT', (success) => {

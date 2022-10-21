@@ -203,7 +203,7 @@ class Room {
       let rank = this.winOrder.length;
       if(this.settings[SETTINGS_IDS.WIN_BY_LEAST_ATTEMPTS]) {
         this.winOrder = this.winOrder.sort((a, b) => a.attempts - b.attempts);
-        rank = this.winOrder.findIndex(p => p.id === id);
+        rank = this.winOrder.findIndex(p => p.id === id) + 1;
       }
       this.message = '#' + rank + ' - ' + player.getName();
     } else {
