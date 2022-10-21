@@ -117,7 +117,10 @@ const Game = (props) => {
           keyboardDisabled={!playerData?.inProgress}
           name={playerData?.name || client.name}
           room={room}
-          message={'[' + gameData?.timeRemaining + '] ' + gameData?.message}
+          message={
+            (settings?.['GAME TIMER'] ? '[' + gameData?.timeRemaining + '] ' : '')
+            + gameData?.message
+          }
         /> 
       }
       

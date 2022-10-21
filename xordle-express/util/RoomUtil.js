@@ -59,10 +59,7 @@ class Room {
       playerCount: this.users.size,
       status: this.status,
       word: this.status === 2 ? this.word : null,
-      winOrder: this.settings[SETTINGS_IDS.WIN_BY_LEAST_ATTEMPTS] ? 
-        this.winOrder.sort((a, b) => {
-          return b.attempts - a.attempts;
-        }) : this.winOrder ,
+      winOrder: this.winOrder,
       message: this.message,
       timeRemaining: this.countdown
     }
@@ -203,7 +200,12 @@ class Room {
         name: player.getName(),
         attempts: player.getAttempts()
       });
-      this.message = '#' + this.winOrder.length + ' - ' + player.getName();
+      let rank = this.winOrder.length;
+      if(this.settings[SETTINGS_IDS.WIN_BY_LEAST_ATTEMPTS]) {
+        this.winOrder = this.winOrder.sort((a, b) => a.attempts - b.attempts);
+        rank = this.winOrder.findIndex(p => p.id === id);
+      }
+      this.message = '#' + rank + ' - ' + player.getName();
     } else {
       if(this.settings[SETTINGS_IDS.SIX_ATTEMPTS] && player.getAttempts() >= this.maxAttempts) {
         // If setting is enabled -- user only gets 6 attempts before they're stopped
