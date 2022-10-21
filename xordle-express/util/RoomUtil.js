@@ -9,7 +9,7 @@ const TIME_TO_REMOVE_ROOM = 60000;
 // SETTINGS CONSTANTS
 const SETTINGS_IDS = {
   STOP_AT_FIRST_WINNER: 'STOP AT FIRST WINNER',
-  WINNER_HAS_LEAST_ATTEMPTS: 'WINNER_HAS_LEAST_ATTEMPTS',
+  WIN_BY_LEAST_ATTEMPTS: 'WIN BY LEAST ATTEMPTS',
   GUESS_TIMER: 'GUESS TIMER',
   GAME_TIMER: 'GAME TIMER',
   SIX_ATTEMPTS: 'SIX ATTEMPTS',
@@ -17,7 +17,7 @@ const SETTINGS_IDS = {
 }
 const SETTINGS = {
   [SETTINGS_IDS.STOP_AT_FIRST_WINNER]: false,
-  [SETTINGS_IDS.WINNER_HAS_LEAST_ATTEMPTS]: false,
+  [SETTINGS_IDS.WIN_BY_LEAST_ATTEMPTS]: false,
   [SETTINGS_IDS.GUESS_TIMER]: true,
   [SETTINGS_IDS.GAME_TIMER]: true,
   [SETTINGS_IDS.SIX_ATTEMPTS]: false,
@@ -59,7 +59,7 @@ class Room {
       playerCount: this.users.size,
       status: this.status,
       word: this.status === 2 ? this.word : null,
-      winOrder: this.settings[SETTINGS_IDS.WINNER_HAS_LEAST_ATTEMPTS] ? 
+      winOrder: this.settings[SETTINGS_IDS.WIN_BY_LEAST_ATTEMPTS] ? 
         this.winOrder.sort((a, b) => {
           return b.attempts - a.attempts;
         }) : this.winOrder ,
