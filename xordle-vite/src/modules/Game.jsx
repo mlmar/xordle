@@ -35,6 +35,12 @@ const Game = (props) => {
     }
   }, [playerData])
 
+  useEffect(() => {
+    if(gameData?.status === 0) {
+      setCurrent([]);
+    }
+  }, [gameData])
+
   const handleShowSettingsClick = () => {
     setShowSettings(prev => !prev);
   }

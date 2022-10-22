@@ -213,9 +213,11 @@ class Room {
       }
     }
 
-    if(this.settings[SETTINGS_IDS.STOP_AT_FIRST_WINNER] && correct) {
+    if(this.settings[SETTINGS_IDS.STOP_AT_FIRST_WINNER]) {
       // If setting is enabled -- only one winner is allowed
-      this.status = 2;
+      if(correct) {
+        this.status = 2;
+      }
     } else if(this.settings[SETTINGS_IDS.SIX_ATTEMPTS]) {
       // if all players have finished or used their attempts then stop the game
       const inProgress = this.checkIfPlayersInProgress();
