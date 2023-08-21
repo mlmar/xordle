@@ -1,0 +1,35 @@
+.menu :disabled {
+  opacity: .4;
+}
+
+.menu > *:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+.menu .menu-input,
+.menu .menu-input:focus {
+  width: 100%;
+  padding: .5rem 0;
+  font-size: 1rem;
+  font-weight: 800;
+  text-align: center;
+  outline: none;
+  border: none;
+  background: transparent;
+  color: var(--purple);
+  border-bottom: .2rem solid var(--purple);
+  border-radius: 0;
+}
+
+.menu .menu-input::placeholder {
+  color: var(--purple);
+  opacity: .6;
+}
+
+.menu .menu-btn {
+  width: 20rem;
+  height: 10rem;
+  font-size: 5rem;
+  background: var(--purple);
+  margin-top: .5rem;
+}

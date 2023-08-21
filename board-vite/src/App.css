@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
+
+:root {
+  --purple: rgb(111, 133, 255);
+  --red: red;
+  --gray: rgb(55, 55, 55);
+  --green: rgb(30, 170, 45);
+  --yellow: rgb(226, 193, 4);
+  --darkgray: rgb(16, 16, 16);
+  --placeholder: rgb(100, 100, 100);
+}
+
+* {
+  font-family: 'Inter', Arial, Helvetica, sans-serif !important;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+html, body, #root, .app {
+  display: flex;
+  flex: 1 1;
+  height: 100%;
+  width: 100%;
+  background: var(--darkgray);
+  overflow: hidden;
+}
+
+a, a:visited {
+  background: initial;
+  text-decoration: none;
+}
+
+button, 
+button:focus,
+input,
+input:focus {
+  outline: none;
+  border: none;
+  user-select: none;
+  transition: opacity .5s ease, background-color .1s ease;
+}
+
+:disabled {
+  cursor: not-allowed;
+}
+
+/* LAYOUT */
+
+.flex, .flex-col { 
+  display: flex;
+}
+.flex-col { 
+  flex-direction: column;
+}
+.flex-fill {
+  flex: 1 1;
+}
+.flex-middle {
+  align-items: center;
+}
+.flex-center {
+  justify-content: center;
+}
+
+/* BASIC ELEMENT DEFAULTS */
+
+button {
+  color: var(--darkgray);
+  background: var(--purple);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:hover:not(:disabled) {
+  background: var(--darkgray);
+  color: var(--purple);
+  outline: .1rem solid var(--purple);
+}
+
+label, h1, h2, h3 {
+  color: var(--purple);
+  font-weight: 600;
+}
