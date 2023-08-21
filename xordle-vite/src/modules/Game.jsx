@@ -35,6 +35,12 @@ const Game = (props) => {
     }
   }, [playerData])
 
+  useEffect(() => {
+    if(gameData?.status === 0) {
+      setCurrent([]);
+    }
+  }, [gameData])
+
   const handleShowSettingsClick = () => {
     setShowSettings(prev => !prev);
   }
@@ -117,7 +123,10 @@ const Game = (props) => {
           keyboardDisabled={!playerData?.inProgress}
           name={playerData?.name || client.name}
           room={room}
-          message={'[' + gameData?.timeRemaining + '] ' + gameData?.message}
+          message={
+            (settings?.['GAME TIMER'] ? '[' + gameData?.timeRemaining + '] ' : '')
+            + gameData?.message
+          }
         /> 
       }
       

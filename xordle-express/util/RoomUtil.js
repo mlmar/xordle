@@ -9,6 +9,7 @@ const TIME_TO_REMOVE_ROOM = 60000;
 // SETTINGS CONSTANTS
 const SETTINGS_IDS = {
   STOP_AT_FIRST_WINNER: 'STOP AT FIRST WINNER',
+  WIN_BY_LEAST_ATTEMPTS: 'WIN BY LEAST ATTEMPTS',
   GUESS_TIMER: 'GUESS TIMER',
   GAME_TIMER: 'GAME TIMER',
   SIX_ATTEMPTS: 'SIX ATTEMPTS',
@@ -16,6 +17,7 @@ const SETTINGS_IDS = {
 }
 const SETTINGS = {
   [SETTINGS_IDS.STOP_AT_FIRST_WINNER]: false,
+  [SETTINGS_IDS.WIN_BY_LEAST_ATTEMPTS]: false,
   [SETTINGS_IDS.GUESS_TIMER]: true,
   [SETTINGS_IDS.GAME_TIMER]: true,
   [SETTINGS_IDS.SIX_ATTEMPTS]: false,
@@ -198,7 +200,12 @@ class Room {
         name: player.getName(),
         attempts: player.getAttempts()
       });
-      this.message = '#' + this.winOrder.length + ' - ' + player.getName();
+      let rank = this.winOrder.length;
+      if(this.settings[SETTINGS_IDS.WIN_BY_LEAST_ATTEMPTS]) {
+        this.winOrder = this.winOrder.sort((a, b) => a.attempts - b.attempts);
+        rank = this.winOrder.findIndex(p => p.id === id) + 1;
+      }
+      this.message = '#' + rank + ' - ' + player.getName();
     } else {
       if(this.settings[SETTINGS_IDS.SIX_ATTEMPTS] && player.getAttempts() >= this.maxAttempts) {
         // If setting is enabled -- user only gets 6 attempts before they're stopped
@@ -206,9 +213,11 @@ class Room {
       }
     }
 
-    if(this.settings[SETTINGS_IDS.STOP_AT_FIRST_WINNER] && correct) {
+    if(this.settings[SETTINGS_IDS.STOP_AT_FIRST_WINNER]) {
       // If setting is enabled -- only one winner is allowed
-      this.status = 2;
+      if(correct) {
+        this.status = 2;
+      }
     } else if(this.settings[SETTINGS_IDS.SIX_ATTEMPTS]) {
       // if all players have finished or used their attempts then stop the game
       const inProgress = this.checkIfPlayersInProgress();

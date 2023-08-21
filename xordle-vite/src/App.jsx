@@ -22,11 +22,14 @@ const App = () => {
 
     socketUtil.listen('VERIFY', (room) => {
       sending.current = false;
-      if(!room) return;
-      dispatch({ 
-        type: 'viewJoin',
-        payload: { room: room }
-      });
+      if(!room) {
+        dispatch({  type: 'viewMain' });
+      } else {
+        dispatch({ 
+          type: 'viewJoin',
+          payload: { room: room }
+        });
+      };
     });
 
     socketUtil.listen('RECONNECT', (success) => {
@@ -67,6 +70,13 @@ const App = () => {
     });
   }
 
+  const handleCodeKeyPress = (event) => {
+    const key = event.key?.toUpperCase();
+    if(key === 'ENTER') {
+      handleMenuClick(CONSTANTS.PLAY);
+    }
+  }
+
   const getCodeInput = () => {
     return (
       <div className="flex-col">
@@ -76,6 +86,7 @@ const App = () => {
           placeholder="ROOM CODE" 
           value={state.room || ''} 
           onChange={handleCodeInput} 
+          onKeyPress={handleCodeKeyPress}
           spellCheck="false" 
           autoComplete="false" 
           autoFocus
