@@ -64,7 +64,7 @@ const GameBoard = (props) => {
                 return (
                     <div className='flex game-board-last' key={word + i}>
                         {word?.map((letter, i) => (
-                            <Letter {...letter} key={letter + i} delay={i * 0.5} />
+                            <Letter {...letter} key={letter + i} delay={i * 0.1} />
                         ))}
                     </div>
                 );
