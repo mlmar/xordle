@@ -8,8 +8,6 @@ RUN npm install --prefix xordle-vite
 COPY xordle-vite/. xordle-vite/
 RUN npm run build --prefix xordle-vite
 
-COPY xordle-vite/dist/. xordle-vite/dist
-
 FROM node:24 as server-build
 
 COPY xordle-express/package.json xordle-express/
@@ -17,5 +15,7 @@ RUN npm install --prefix xordle-express
 
 COPY xordle-express/. xordle-express/
 
-EXPOSE 3300 5678
+COPY --from=client-build /app/xordle-vite/dist xordle-vite/dist
+
+EXPOSE 3300
 CMD ["npm", "run", "Start", "--prefix", "xordle-express"]
