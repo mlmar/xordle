@@ -8,7 +8,7 @@ RUN npm install --prefix xordle-vite
 COPY xordle-vite/. xordle-vite/
 RUN npm run build --prefix xordle-vite
 
-COPY xordle-vite/. xordle-vite/
+COPY xordle-vite/dist/. xordle-vite/dist
 
 FROM node:24 as server-build
 
