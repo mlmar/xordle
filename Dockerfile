@@ -8,6 +8,8 @@ RUN npm install --prefix xordle-vite
 COPY xordle-vite/. xordle-vite/
 RUN npm run build --prefix xordle-vite
 
+COPY xordle-vite/. xordle-vite/
+
 FROM node:24 as server-build
 
 COPY xordle-express/package.json xordle-express/
