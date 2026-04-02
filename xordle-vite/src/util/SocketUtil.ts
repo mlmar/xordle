@@ -1,5 +1,4 @@
-import { DEV, SOCKET_URL } from './SystemUtil';
-import CONSTANTS from './Constants';
+import { SOCKET_URL } from './SystemUtil';
 
 interface CustomWebSocket extends WebSocket {
     id: string,
@@ -8,8 +7,6 @@ interface CustomWebSocket extends WebSocket {
 }
 
 export let client: CustomWebSocket | null = null;
-
-let pingInterval: NodeJS.Timeout | null = null;
 
 type ActionCallback = (payload: any) => void;
 
@@ -48,21 +45,7 @@ const init = () => {
     if (client) {
         console.warn('Client already initialized. Removing existing client...');
         client.close();
-        if (pingInterval) {
-            clearInterval(pingInterval);
-            pingInterval = null;
-        }
     }
-
-    const pingServer = () => {
-        if (client) {
-            client.emit('PING');
-        }
-    };
-
-    listen('PING', () => {
-        console.log('Received server ping');
-    });
 
     listen('SET_ID', (id) => {
         if (!client) return;
@@ -105,7 +88,7 @@ const init = () => {
         const { action, payload } = JSON.parse(data);
         // console.log(action, payload);
         if (listeners.has(action)) {
-            if (DEV) {
+            if (import.meta.env.DEV) {
                 console.log('Message from server:', { action, payload });
             }
             listeners.get(action)!.forEach((func) => func(payload));
@@ -116,8 +99,6 @@ const init = () => {
         console.warn('Client closed. Reconnecting...');
         init();
     });
-
-    pingInterval = setInterval(pingServer, CONSTANTS.PING_DELAY);
 
     return client;
 };
