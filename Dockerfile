@@ -1,7 +1,9 @@
 FROM node:24 AS client-build
 
+
 WORKDIR /app
 
+COPY xordle-common/. xordle-common/
 COPY xordle-vite/package.json xordle-vite/ 
 RUN npm install --prefix xordle-vite
 
@@ -10,6 +12,7 @@ RUN npm run build --prefix xordle-vite
 
 FROM node:24 AS server-build
 
+COPY xordle-common/. xordle-common/
 COPY xordle-express/package.json xordle-express/
 RUN npm install --prefix xordle-express
 

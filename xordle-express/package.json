@@ -2,12 +2,12 @@
     "name": "xordle-express",
     "version": "1.0.0",
     "description": "",
-    "main": "dist/index.ts",
+    "main": "dist/index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "dev": "tsx watch index.ts",
         "build": "tsc --project tsconfig.prod.json",
-        "prod": "node dist/server/src/index.js"
+        "prod": "node dist/index.js"
     },
     "keywords": [],
     "author": "",
