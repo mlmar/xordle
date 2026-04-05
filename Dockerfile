@@ -12,6 +12,8 @@ RUN npm run build --prefix xordle-vite
 
 FROM node:24 AS server-build
 
+WORKDIR /app
+
 COPY xordle-common/. xordle-common/
 COPY xordle-express/package.json xordle-express/
 RUN npm install --prefix xordle-express
