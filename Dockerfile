@@ -18,4 +18,4 @@ COPY xordle-express/. xordle-express/
 COPY --from=client-build /app/xordle-vite/dist xordle-vite/dist
 
 EXPOSE 3300
-CMD ["npm", "run", "Start", "--prefix", "xordle-express"]
+CMD ["npm", "run", "start", "--prefix", "xordle-express"]
