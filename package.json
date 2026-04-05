@@ -23,5 +23,8 @@
     "bugs": {
         "url": "https://github.com/mlmar/xordle/issues"
     },
-    "homepage": "https://github.com/mlmar/xordle#readme"
+    "homepage": "https://github.com/mlmar/xordle#readme",
+    "devDependencies": {
+        "baseline-browser-mapping": "^2.10.15"
+    }
 }

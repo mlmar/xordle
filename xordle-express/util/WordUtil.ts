@@ -4,7 +4,7 @@ import fs from 'fs';
 let answers: string[] = [];
 let possible: string[] = [];
 
-fs.readFile(path.join(__dirname, './wordle-answers.txt'), 'utf8', (err, data) => {
+fs.readFile(path.join(__dirname, '../data/wordle-answers.txt'), 'utf8', (err, data) => {
     if (err) {
         console.error(err);
         return;
@@ -13,7 +13,7 @@ fs.readFile(path.join(__dirname, './wordle-answers.txt'), 'utf8', (err, data) =>
     console.log('Loaded', answers.length, 'answers');
 });
 
-fs.readFile(path.join(__dirname, './wordle-possible.txt'), 'utf8', (err, data) => {
+fs.readFile(path.join(__dirname, '../data/wordle-possible.txt'), 'utf8', (err, data) => {
     if (err) {
         console.error(err);
         return;
